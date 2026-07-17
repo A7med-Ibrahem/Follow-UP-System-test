@@ -2022,7 +2022,7 @@
     });
 
     document.querySelectorAll('.modal-overlay').forEach(m => {
-      m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+      m.addEventListener('click', e => { if (e.target === m && m.dataset.forced !== '1') m.classList.remove('open'); });
     });
 
     function clearFormErrors() {
