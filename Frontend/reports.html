@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SmartFollow Up | Reports</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg-main:#F8FAFC; --bg-card:#FFFFFF; --bg-sidebar:#FFFFFF;
+  --bg-input:#F1F5F9; --text-main:#0F172A; --text-muted:#64748B;
+  --border:#E2E8F0; --primary:#2563EB; --primary-light:rgba(37,99,235,0.1);
+  --success:#10B981; --warning:#F59E0B; --error:#EF4444;
+  --shadow:0 4px 6px -1px rgba(0,0,0,0.07),0 2px 4px -1px rgba(0,0,0,0.04);
+  --sidebar-width:260px; --transition:0.3s cubic-bezier(0.4,0,0.2,1);
+}
+[data-theme="dark"] {
+  --bg-main:#020617; --bg-card:#0F172A; --bg-sidebar:#0F172A;
+  --bg-input:#1E293B; --text-main:#F8FAFC; --text-muted:#94A3B8;
+  --border:#1E293B; --primary:#3B82F6;
+  --shadow:0 4px 6px -1px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg-main);color:var(--text-main);display:flex;height:100vh;overflow:hidden;transition:background-color var(--transition),color var(--transition);}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+
+/* ── SIDEBAR ── */
+aside{width:var(--sidebar-width);background:var(--bg-sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px;z-index:100;flex-shrink:0;transition:var(--transition);}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;color:var(--primary);margin-bottom:40px;text-decoration:none;}
+.logo svg{width:26px;height:26px;flex-shrink:0;}
+.nav-group{display:flex;flex-direction:column;gap:4px;flex:1;}
+.nav-link{display:flex;align-items:center;gap:12px;padding:11px 12px;text-decoration:none;color:var(--text-muted);font-weight:500;border-radius:10px;transition:var(--transition);font-size:14px;white-space:nowrap;}
+.nav-link:hover,.nav-link.active{background:var(--primary-light);color:var(--primary);}
+.nav-link svg{width:18px;height:18px;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--error);color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;}
+.nav-bottom{margin-top:auto;display:flex;flex-direction:column;gap:4px;}
+
+/* ── MAIN ── */
+main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+header{height:68px;background:var(--bg-card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0;gap:12px;}
+.mobile-menu-btn{display:none;background:none;border:none;cursor:pointer;color:var(--text-main);padding:6px;border-radius:8px;}
+.search-bar{position:relative;flex:1;max-width:320px;}
+.search-bar input{width:100%;padding:9px 14px 9px 38px;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;color:var(--text-main);font-family:'Inter',sans-serif;font-size:13px;outline:none;transition:var(--transition);}
+.search-bar input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light);}
+.search-bar input::placeholder{color:var(--text-muted);}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;}
+.header-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.theme-toggle{cursor:pointer;padding:7px;border-radius:9px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-main);transition:var(--transition);display:flex;align-items:center;}
+.theme-toggle:hover{background:var(--bg-input);}
+.avatar{width:34px;height:34px;border-radius:50%;border:2px solid var(--primary);}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;padding:24px 28px;}
+.page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;gap:16px;flex-wrap:wrap;}
+.page-title h1{font-size:22px;font-weight:700;}
+.page-title p{color:var(--text-muted);font-size:14px;margin-top:4px;}
+
+/* ── STATS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.stat-card{background:var(--bg-card);padding:16px 18px;border-radius:14px;border:1px solid var(--border);box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;animation:fadeInUp 0.4s both;}
+.stat-card:nth-child(2){animation-delay:.06s;}.stat-card:nth-child(3){animation-delay:.12s;}.stat-card:nth-child(4){animation-delay:.18s;}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.stat-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.stat-icon.blue{background:var(--primary-light);color:var(--primary);}
+.stat-icon.red{background:rgba(239,68,68,0.1);color:var(--error);}
+.stat-icon.yellow{background:rgba(245,158,11,0.1);color:var(--warning);}
+.stat-icon.green{background:rgba(16,185,129,0.1);color:var(--success);}
+.stat-value{font-size:22px;font-weight:700;line-height:1;}
+.stat-label{font-size:12px;color:var(--text-muted);margin-top:2px;}
+
+/* ── FILTERS ── */
+.filters-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap;}
+.filter-tabs{display:flex;gap:4px;background:var(--bg-input);padding:4px;border-radius:10px;}
+.filter-tab{padding:7px 14px;border-radius:7px;border:none;background:none;font-size:13px;font-weight:600;color:var(--text-muted);cursor:pointer;transition:var(--transition);font-family:'Inter',sans-serif;}
+.filter-tab.active{background:var(--bg-card);color:var(--primary);box-shadow:var(--shadow);}
+.btn-secondary{background:var(--bg-card);color:var(--text-main);border:1px solid var(--border);padding:8px 14px;border-radius:10px;font-weight:500;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:var(--transition);font-family:'Inter',sans-serif;}
+.btn-secondary:hover{background:var(--bg-input);}
+
+/* ── TABLE ── */
+.table-container{background:var(--bg-card);border-radius:18px;border:1px solid var(--border);box-shadow:var(--shadow);overflow-x:auto;}
+.table-container table{min-width:600px;}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;padding:13px 18px;background:var(--bg-input);color:var(--text-muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
+td{padding:14px 18px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(37,99,235,0.015);transition:background .15s;cursor:pointer;}
+
+/* ── RISK BADGES ── */
+.risk-badge{padding:4px 10px;border-radius:7px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;}
+.risk-badge::before{content:'';width:5px;height:5px;border-radius:50%;}
+.risk-stable{background:rgba(16,185,129,0.1);color:var(--success);}
+.risk-stable::before{background:var(--success);}
+.risk-moderate{background:rgba(245,158,11,0.1);color:var(--warning);}
+.risk-moderate::before{background:var(--warning);}
+.risk-critical{background:rgba(239,68,68,0.1);color:var(--error);animation:pulseBadge 2s infinite;}
+.risk-critical::before{background:var(--error);}
+@keyframes pulseBadge{0%{box-shadow:0 0 0 0 rgba(239,68,68,0.3);}70%{box-shadow:0 0 0 6px rgba(239,68,68,0);}100%{box-shadow:0 0 0 0 rgba(239,68,68,0);}}
+
+/* ── PATIENT CELL ── */
+.patient-cell{display:flex;align-items:center;gap:10px;}
+.p-avatar{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.p-name{font-weight:600;font-size:13px;}
+.p-case{font-size:11px;color:var(--text-muted);}
+
+/* ── VITALS ── */
+.vital-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.vital-chip{display:flex;align-items:center;gap:4px;background:var(--bg-input);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:500;white-space:nowrap;}
+.vital-chip.high-temp{background:rgba(239,68,68,0.08);color:var(--error);}
+.vital-chip.high-pain{background:rgba(245,158,11,0.08);color:var(--warning);}
+.vital-chip.symptom{background:rgba(37,99,235,0.08);color:var(--primary);}
+
+/* ── REPORT DETAIL MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg-card);border-radius:20px;border:1px solid var(--border);width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);animation:modalIn .3s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes modalIn{from{opacity:0;transform:scale(0.93) translateY(16px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.modal-header{padding:22px 24px 0;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.modal-title{font-size:17px;font-weight:700;}
+.modal-close{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transition);}
+.modal-close:hover{background:var(--bg-input);}
+.modal-body{padding:0 24px 24px;}
+
+/* ── REPORT DETAIL CONTENT ── */
+.report-detail-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+.vitals-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.vital-card{background:var(--bg-input);border-radius:12px;padding:14px 16px;}
+.vital-card-label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
+.vital-card-value{font-size:22px;font-weight:700;}
+.vital-card-sub{font-size:11px;color:var(--text-muted);margin-top:3px;}
+.symptoms-row{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.symptom-pill{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;}
+.symptom-yes{background:rgba(239,68,68,0.1);color:var(--error);}
+.symptom-no{background:rgba(16,185,129,0.1);color:var(--success);}
+.ai-section{background:var(--bg-input);border-radius:12px;padding:16px;margin-bottom:20px;}
+.ai-label{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.ai-score-bar{height:8px;background:var(--border);border-radius:99px;overflow:hidden;margin-bottom:6px;}
+.ai-score-fill{height:100%;border-radius:99px;transition:width 1s ease;}
+.ai-score-fill.stable{background:linear-gradient(90deg,#10b981,#34d399);}
+.ai-score-fill.moderate{background:linear-gradient(90deg,#f59e0b,#fbbf24);}
+.ai-score-fill.critical{background:linear-gradient(90deg,#ef4444,#f87171);}
+.ai-score-nums{display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);}
+.notes-section{background:var(--bg-input);border-radius:12px;padding:14px 16px;}
+.notes-label{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;}
+.notes-text{font-size:13px;line-height:1.6;}
+.wound-images-section{margin-top:16px;}
+.wound-images-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-top:10px;}
+.wound-img{width:100%;aspect-ratio:1;border-radius:8px;object-fit:cover;border:1px solid var(--border);cursor:pointer;transition:transform .2s;}
+.wound-img:hover{transform:scale(1.05);}
+
+/* ── SKELETON ── */
+.skeleton{background:linear-gradient(90deg,var(--bg-input) 25%,var(--border) 50%,var(--bg-input) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:6px;height:14px;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+/* ── EMPTY ── */
+.empty-state{padding:60px;text-align:center;}
+.empty-state svg{width:48px;height:48px;color:var(--text-muted);margin-bottom:12px;}
+.empty-state h3{font-size:15px;font-weight:600;margin-bottom:5px;}
+.empty-state p{font-size:13px;color:var(--text-muted);}
+
+/* ── PAGINATION ── */
+.pagination{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-top:1px solid var(--border);}
+.page-info{color:var(--text-muted);font-size:13px;}
+.page-ctrls{display:flex;gap:6px;}
+.btn-icon{width:34px;height:34px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);background:var(--bg-card);border-radius:8px;cursor:pointer;color:var(--text-muted);transition:var(--transition);}
+.btn-icon:hover:not(:disabled){background:var(--bg-input);border-color:var(--primary);color:var(--primary);}
+.btn-icon:disabled{opacity:.4;cursor:not-allowed;}
+.page-num{width:34px;height:34px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);background:var(--bg-card);border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;transition:var(--transition);}
+.page-num.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+
+/* ── TOAST ── */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:300;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--bg-card);border:1px solid var(--border);padding:12px 16px;border-radius:12px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;min-width:260px;transform:translateX(120%);transition:transform 0.4s cubic-bezier(0.68,-0.55,0.265,1.55);}
+.toast.show{transform:translateX(0);}
+.toast.success{border-left:3px solid var(--success);}
+.toast.error{border-left:3px solid var(--error);}
+.toast-msg{flex:1;font-size:13px;font-weight:500;}
+.toast-x{background:none;border:none;cursor:pointer;color:var(--text-muted);}
+
+/* ── LIGHTBOX ── */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:400;display:none;align-items:center;justify-content:center;}
+.lightbox.open{display:flex;}
+.lightbox img{max-width:90vw;max-height:90vh;border-radius:12px;object-fit:contain;}
+.lightbox-close{position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.1);border:none;color:#fff;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;}
+
+/* ── RESPONSIVE ── */
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99;}
+@media(max-width:1200px){.stats-row{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:1024px){aside{width:72px;padding:20px 10px;}.logo span,.nav-link span{display:none;}.logo{justify-content:center;}.nav-link{justify-content:center;}.nav-badge{display:none;}}
+@media(max-width:768px){
+  aside{position:fixed;left:-100%;top:0;height:100%;width:250px;padding:24px;transition:left var(--transition);z-index:200;}
+  aside.open{left:0;}.logo span,.nav-link span{display:flex;}.nav-link{justify-content:flex-start;}.nav-badge{display:flex;}
+  .mobile-menu-btn{display:flex;}.sidebar-overlay.open{display:block;}
+  .content{padding:16px;}.stats-row{grid-template-columns:1fr 1fr;}
+  .vitals-grid{grid-template-columns:1fr;}
+}
+@media(max-width:480px){.stats-row{grid-template-columns:1fr;}.search-bar{display:none;}.filter-tabs{width:100%;}.filter-tab{flex:1;text-align:center;}}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#2563EB"/>
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="SmartFollow"/>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <a href="doctor-dashboard.html" class="logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+    <span>SmartFollow</span>
+  </a>
+  <nav class="nav-group">
+    <a href="doctor-dashboard.html" class="nav-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Dashboard</span>
+    </a>
+    <a href="doctor-dashboard.html" class="nav-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span>All Cases</span>
+    </a>
+    <a href="alerts.html" class="nav-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span>Alerts</span>
+      <span class="nav-badge" id="alertsBadge" style="display:none">0</span>
+    </a>
+    <a href="reports.html" class="nav-link active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span>Reports</span>
+    </a>
+    <a href="prescriptions.html" class="nav-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <span>Prescriptions</span>
+    </a>
+  </nav>
+  <div class="nav-bottom">
+    <a href="login.html" class="nav-link" onclick="logout(event)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      <span>Logout</span>
+    </a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main>
+  <header>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="search-bar">
+        <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search by patient name..." id="searchInput" oninput="debounceSearch(this.value)"/>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="theme-toggle" id="themeToggle">
+        <svg id="themeIcon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <img src="" class="avatar" id="userAvatar" alt="Doctor"/>
+    </div>
+  </header>
+
+  <div class="content">
+    <div class="page-header">
+      <div class="page-title">
+        <h1>Daily Reports</h1>
+        <p>All patient health reports across your cases.</p>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <div><div class="stat-value" id="statTotal">—</div><div class="stat-label">Total Reports</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div><div class="stat-value" id="statCritical" style="color:var(--error)">—</div><div class="stat-label">Critical</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon yellow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div>
+        <div><div class="stat-value" id="statModerate" style="color:var(--warning)">—</div><div class="stat-label">Moderate</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div><div class="stat-value" id="statStable" style="color:var(--success)">—</div><div class="stat-label">Stable</div></div>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters-bar">
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="setFilter('all',this)">All</button>
+        <button class="filter-tab" onclick="setFilter('Critical',this)">Critical</button>
+        <button class="filter-tab" onclick="setFilter('Moderate',this)">Moderate</button>
+        <button class="filter-tab" onclick="setFilter('Stable',this)">Stable</button>
+      </div>
+      <button class="btn-secondary" onclick="loadAllReports()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Refresh
+      </button>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Patient</th>
+            <th>Date</th>
+            <th>Vitals</th>
+            <th>Risk Level</th>
+            <th>Risk Score</th>
+          </tr>
+        </thead>
+        <tbody id="reportsBody"></tbody>
+      </table>
+      <div id="emptyState" style="display:none">
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <h3>No Reports Found</h3>
+          <p>No reports match the selected filter.</p>
+        </div>
+      </div>
+      <div class="pagination" id="paginationBar" style="display:none">
+        <span class="page-info" id="pageInfo"></span>
+        <div class="page-ctrls" id="pageCtrls"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- REPORT DETAIL MODAL -->
+<div class="modal-overlay" id="reportModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">Report Details</span>
+      <button class="modal-close" onclick="closeModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close">✕</button>
+  <img id="lightboxImg" src="" alt="Wound"/>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+const API = 'http://localhost:5290/api';
+let allReports = [];
+let filteredReports = [];
+let activeFilter = 'all';
+let searchQuery = '';
+let searchTimer = null;
+let currentPage = 1;
+const pageSize = 15;
+
+// ── INIT ──
+window.addEventListener('DOMContentLoaded', () => {
+  const token = localStorage.getItem('token');
+  const role  = localStorage.getItem('userRole');
+  if (!token || !role) { location.href = 'login.html'; return; }
+  if (role !== 'Doctor') { localStorage.clear(); location.href = 'login.html'; return; }
+  initTheme();
+  loadUserAvatar();
+  loadAlertCount();
+  loadAllReports();
+});
+
+// ── AUTH ──
+function headers() { return {'Content-Type':'application/json','Authorization':`Bearer ${localStorage.getItem('token')}`}; }
+let refreshPromise = null;
+async function apiCall(url, opts={}) {
+  opts.headers = headers();
+  let res = await fetch(url, opts);
+  if (res.status === 401) {
+    const rt = localStorage.getItem('refreshToken');
+    if (!rt) { logout(); return null; }
+    if (!refreshPromise) {
+      refreshPromise = fetch(`${API}/Auth/refresh-token`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({refreshToken:rt})})
+        .then(async r => {
+          if (!r.ok) throw new Error('refresh_failed');
+          const d = await r.json();
+          localStorage.setItem('token', d.accessToken);
+          if (d.refreshToken) localStorage.setItem('refreshToken', d.refreshToken);
+        })
+        .finally(() => { refreshPromise = null; });
+    }
+    try { await refreshPromise; } catch { logout(); return null; }
+    opts.headers = headers();
+    res = await fetch(url, opts);
+  }
+  return res;
+}
+function logout(e) { if(e) e.preventDefault(); localStorage.clear(); location.href='login.html'; }
+
+// ── LOAD ALL REPORTS ──
+// Strategy: get all cases first, then get reports for each case
+async function loadAllReports() {
+  renderSkeletons();
+  try {
+    // 1. Get all cases
+    const casesRes = await apiCall(`${API}/Cases?page=1&pageSize=100`);
+    if (!casesRes||!casesRes.ok) { showEmpty(); return; }
+    const casesData = await casesRes.json();
+    const cases = casesData.items||casesData.data||casesData||[];
+    if (!cases.length) { showEmpty('No cases found.'); return; }
+
+    // 2. Get reports for each case (parallel)
+    const promises = cases.map(c =>
+      apiCall(`${API}/Reports/case/${c.id}?page=1&pageSize=50`)
+        .then(r => r&&r.ok ? r.json() : null)
+        .then(data => {
+          if (!data) return [];
+          const reps = data.items||data.data||data||[];
+          return reps.map(r => ({...r, patientName: c.patientName||c.name||'Unknown', operationType: c.operationType||'—', caseId: c.id}));
+        })
+        .catch(() => [])
+    );
+
+    const results = await Promise.all(promises);
+    allReports = results.flat().sort((a,b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+
+    // Stats
+    const critical = allReports.filter(r => getRisk(r)==='Critical').length;
+    const moderate = allReports.filter(r => getRisk(r)==='Moderate').length;
+    const stable   = allReports.filter(r => getRisk(r)==='Stable').length;
+    document.getElementById('statTotal').textContent    = allReports.length;
+    document.getElementById('statCritical').textContent = critical;
+    document.getElementById('statModerate').textContent = moderate;
+    document.getElementById('statStable').textContent   = stable;
+
+    applyFilter(activeFilter);
+  } catch(e) { showEmpty('Network error. Please try again.'); }
+}
+
+// ── FILTER & SEARCH ──
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilter(f);
+}
+
+function applyFilter(f) {
+  let list = [...allReports];
+  if (f !== 'all') list = list.filter(r => getRisk(r) === f);
+  if (searchQuery) list = list.filter(r => (r.patientName||'').toLowerCase().includes(searchQuery.toLowerCase()));
+  filteredReports = list;
+  currentPage = 1;
+  renderReports();
+}
+
+function debounceSearch(val) {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { searchQuery = val.trim(); applyFilter(activeFilter); }, 350);
+}
+
+// ── RENDER ──
+function renderReports() {
+  const tbody = document.getElementById('reportsBody');
+  const empty = document.getElementById('emptyState');
+  if (!filteredReports.length) { tbody.innerHTML=''; empty.style.display=''; document.getElementById('paginationBar').style.display='none'; return; }
+  empty.style.display = 'none';
+
+  const start = (currentPage-1)*pageSize;
+  const page  = filteredReports.slice(start, start+pageSize);
+
+  tbody.innerHTML = page.map((r,i) => {
+    const risk  = getRisk(r);
+    const score = r.riskScore ?? r.aiAnalysis?.riskScore ?? '—';
+    const {bg, text} = avatarColor(r.patientName||'P');
+    const highTemp = parseFloat(r.temperature) >= 38;
+    const highPain = parseInt(r.painLevel) >= 7;
+
+    return `<tr onclick="openReport(${JSON.stringify(r).replace(/"/g,'&quot;')})" style="animation:fadeInUp .3s ${i*.03}s both">
+      <td>
+        <div class="patient-cell">
+          <div class="p-avatar" style="background:${bg};color:${text}">${getInitials(r.patientName||'P')}</div>
+          <div><div class="p-name">${escHtml(r.patientName||'Unknown')}</div><div class="p-case">Case #${r.caseId} · ${escHtml(r.operationType||'—')}</div></div>
+        </div>
+      </td>
+      <td style="color:var(--text-muted);font-size:12px;white-space:nowrap">${formatDate(r.submittedAt)}</td>
+      <td>
+        <div class="vital-chips">
+          <div class="vital-chip ${highTemp?'high-temp':''}">🌡 ${r.temperature}°C</div>
+          <div class="vital-chip ${highPain?'high-pain':''}">⚡ ${r.painLevel}/10</div>
+          ${r.swelling?`<div class="vital-chip symptom">Swelling</div>`:''}
+          ${r.bleeding?`<div class="vital-chip symptom">Bleeding</div>`:''}
+        </div>
+      </td>
+      <td><span class="risk-badge risk-${risk.toLowerCase()}">${risk}</span></td>
+      <td style="font-weight:700;color:${risk==='Critical'?'var(--error)':risk==='Moderate'?'var(--warning)':'var(--success)'}">${score}</td>
+    </tr>`;
+  }).join('');
+
+  renderPagination(filteredReports.length);
+}
+
+function renderSkeletons() {
+  document.getElementById('reportsBody').innerHTML = Array.from({length:8},()=>`
+    <tr>${Array.from({length:5},()=>`<td><div class="skeleton" style="width:${60+Math.random()*80}px"></div></td>`).join('')}</tr>`).join('');
+  document.getElementById('emptyState').style.display='none';
+}
+
+function showEmpty(msg='No reports found.') {
+  document.getElementById('reportsBody').innerHTML='';
+  const el=document.getElementById('emptyState');
+  el.style.display='';
+  el.querySelector('p').textContent = msg;
+  document.getElementById('paginationBar').style.display='none';
+}
+
+// ── REPORT DETAIL ──
+function openReport(report) {
+  const r = typeof report === 'string' ? JSON.parse(report) : report;
+  const risk  = getRisk(r);
+  const score = r.riskScore ?? r.aiAnalysis?.riskScore ?? 0;
+  document.getElementById('modalTitle').textContent = `Report — ${formatDate(r.submittedAt)}`;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="report-detail-header">
+      <div>
+        <div style="font-size:15px;font-weight:700">${escHtml(r.patientName||'Unknown')}</div>
+        <div style="font-size:12px;color:var(--text-muted)">Case #${r.caseId} · ${escHtml(r.operationType||'—')}</div>
+      </div>
+      <span class="risk-badge risk-${risk.toLowerCase()}">${risk}</span>
+    </div>
+    <div class="vitals-grid">
+      <div class="vital-card">
+        <div class="vital-card-label">Temperature</div>
+        <div class="vital-card-value" style="color:${parseFloat(r.temperature)>=39?'var(--error)':parseFloat(r.temperature)>=38?'var(--warning)':'var(--success)'}">${r.temperature}°C</div>
+        <div class="vital-card-sub">${parseFloat(r.temperature)>=39?'High fever':parseFloat(r.temperature)>=38?'Mild fever':'Normal'}</div>
+      </div>
+      <div class="vital-card">
+        <div class="vital-card-label">Pain Level</div>
+        <div class="vital-card-value" style="color:${parseInt(r.painLevel)>=8?'var(--error)':parseInt(r.painLevel)>=5?'var(--warning)':'var(--success)'}">${r.painLevel}<span style="font-size:14px;font-weight:400">/10</span></div>
+        <div class="vital-card-sub">${parseInt(r.painLevel)>=8?'Severe':parseInt(r.painLevel)>=5?'Moderate':'Mild'}</div>
+      </div>
+    </div>
+    <div class="symptoms-row">
+      <div class="symptom-pill ${r.swelling?'symptom-yes':'symptom-no'}">
+        ${r.swelling?'⚠️ Swelling present':'✓ No swelling'}
+      </div>
+      <div class="symptom-pill ${r.bleeding?'symptom-yes':'symptom-no'}">
+        ${r.bleeding?'⚠️ Bleeding present':'✓ No bleeding'}
+      </div>
+    </div>
+    ${(r.riskLevel || r.aiAnalysis) ? `
+    <div class="ai-section">
+      <div class="ai-label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        AI Risk Analysis
+      </div>
+      <div style="font-size:24px;font-weight:700;margin-bottom:8px;color:${risk==='Critical'?'var(--error)':risk==='Moderate'?'var(--warning)':'var(--success)'}">${score}/100</div>
+      <div class="ai-score-bar"><div class="ai-score-fill ${risk.toLowerCase()}" style="width:${Math.min(score,100)}%"></div></div>
+      <div class="ai-score-nums"><span>0</span><span>Stable</span><span>Moderate</span><span>Critical</span><span>100</span></div>
+    </div>` : ''}
+    ${r.notes ? `
+    <div class="notes-section">
+      <div class="notes-label">Patient Notes</div>
+      <div class="notes-text">${escHtml(r.notes)}</div>
+    </div>` : ''}
+    <div style="margin-top:16px;display:flex;gap:8px">
+      <button onclick="openEditReportForm(${JSON.stringify(r).replace(/"/g,'&quot;')})" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-primary);font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:var(--transition)">Edit Report</button>
+      <button onclick="location.href='case-details.html?id=${r.caseId}'" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--primary);background:var(--primary-light);color:var(--primary);font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:var(--transition)">View Full Case</button>
+    </div>`;
+  document.getElementById('reportModal').classList.add('open');
+}
+
+function openEditReportForm(r) {
+  document.getElementById('modalTitle').textContent = `Edit Report — ${formatDate(r.submittedAt)}`;
+  document.getElementById('modalBody').innerHTML = `
+    <div id="drError" style="display:none;padding:10px 14px;border-radius:10px;font-size:13px;margin-bottom:14px;background:rgba(239,68,68,0.08);color:var(--error)"></div>
+    <div class="form-group"><label class="form-label" style="font-size:12px">Temperature (°C)</label><input type="number" step="0.1" class="form-input" id="drTemp" value="${r.temperature}"/></div>
+    <div class="form-group"><label class="form-label" style="font-size:12px">Pain Level (1-10)</label><input type="number" min="1" max="10" class="form-input" id="drPain" value="${r.painLevel}"/></div>
+    <div class="form-group" style="display:flex;align-items:center;gap:10px"><label class="form-label" style="margin:0;font-size:12px">Swelling</label><input type="checkbox" id="drSwelling" ${r.swelling?'checked':''}/></div>
+    <div class="form-group" style="display:flex;align-items:center;gap:10px"><label class="form-label" style="margin:0;font-size:12px">Bleeding</label><input type="checkbox" id="drBleeding" ${r.bleeding?'checked':''}/></div>
+    <div class="form-group"><label class="form-label" style="font-size:12px">Notes</label><textarea class="form-input" id="drNotes" rows="3">${escHtml(r.notes||'')}</textarea></div>
+    <div style="margin-top:16px;display:flex;gap:8px">
+      <button onclick="openReport(${JSON.stringify(r).replace(/"/g,'&quot;')})" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-primary);font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">Cancel</button>
+      <button id="drSaveBtn" onclick="saveDoctorReportEdit(${r.id})" style="flex:1;padding:10px;border-radius:10px;border:none;background:var(--primary);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">Save Changes</button>
+    </div>`;
+}
+
+async function saveDoctorReportEdit(reportId) {
+  const temp = parseFloat(document.getElementById('drTemp').value);
+  const pain = parseInt(document.getElementById('drPain').value);
+  const errBox = document.getElementById('drError');
+  errBox.style.display = 'none';
+
+  if (isNaN(temp) || temp < 35 || temp > 42) { errBox.style.display='block'; errBox.textContent='Temperature must be between 35 and 42°C.'; return; }
+  if (isNaN(pain) || pain < 1 || pain > 10) { errBox.style.display='block'; errBox.textContent='Pain level must be between 1 and 10.'; return; }
+
+  const btn = document.getElementById('drSaveBtn');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    const res = await apiCall(`${API}/Reports/${reportId}`, {
+      method: 'PUT',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        temperature: temp,
+        painLevel: pain,
+        swelling: document.getElementById('drSwelling').checked,
+        bleeding: document.getElementById('drBleeding').checked,
+        notes: document.getElementById('drNotes').value.trim() || null
+      })
+    });
+    if (res && res.ok) {
+      showToast('Report updated successfully.', 'success');
+      closeModal();
+      if (typeof loadAllReports === 'function') loadAllReports();
+    } else {
+      const d = await res?.json().catch(()=>({}));
+      errBox.style.display='block'; errBox.textContent = d.message || 'Could not update the report.';
+      btn.disabled = false; btn.textContent = 'Save Changes';
+    }
+  } catch {
+    errBox.style.display='block'; errBox.textContent = 'Network error. Please try again.';
+    btn.disabled = false; btn.textContent = 'Save Changes';
+  }
+}
+
+function closeModal() { document.getElementById('reportModal').classList.remove('open'); }
+document.getElementById('reportModal').addEventListener('click', e => { if(e.target===document.getElementById('reportModal')) closeModal(); });
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+
+// ── PAGINATION ──
+function renderPagination(total) {
+  const pages = Math.ceil(total/pageSize);
+  const bar   = document.getElementById('paginationBar');
+  bar.style.display = total > pageSize ? '' : 'none';
+  const start = Math.min((currentPage-1)*pageSize+1, total);
+  const end   = Math.min(currentPage*pageSize, total);
+  document.getElementById('pageInfo').textContent = `Showing ${start}–${end} of ${total}`;
+  const ctrl = document.getElementById('pageCtrls');
+  ctrl.innerHTML = `<button class="btn-icon" onclick="goPage(${currentPage-1})" ${currentPage<=1?'disabled':''}>
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>`;
+  for (let p=1; p<=Math.min(pages,7); p++) {
+    ctrl.innerHTML += `<button class="page-num ${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
+  }
+  ctrl.innerHTML += `<button class="btn-icon" onclick="goPage(${currentPage+1})" ${currentPage>=pages?'disabled':''}>
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>`;
+}
+
+function goPage(p) {
+  const pages = Math.ceil(filteredReports.length/pageSize);
+  if (p<1||p>pages) return;
+  currentPage = p;
+  renderReports();
+  document.querySelector('.content').scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── LIGHTBOX ──
+function openLightbox(src) { document.getElementById('lightboxImg').src=src; document.getElementById('lightbox').classList.add('open'); }
+function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
+
+// ── ALERT COUNT ──
+async function loadAlertCount() {
+  try {
+    const res = await apiCall(`${API}/Alerts/count`);
+    if (!res||!res.ok) return;
+    const d = await res.json();
+    const count = d.count ?? d ?? 0;
+    const badge = document.getElementById('alertsBadge');
+    if (count>0) { badge.textContent=count>99?'99+':count; badge.style.display=''; }
+  } catch {}
+}
+
+// ── THEME ──
+function initTheme(){const t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);updateThemeIcon(t);}
+document.getElementById('themeToggle').addEventListener('click',()=>{const cur=document.documentElement.getAttribute('data-theme');const next=cur==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',next);localStorage.setItem('theme',next);updateThemeIcon(next);});
+function updateThemeIcon(t){document.getElementById('themeIcon').innerHTML=t==='dark'?`<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`:`<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;}
+
+// ── SIDEBAR ──
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('open');}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('open');}
+
+// ── AVATAR ──
+async function loadUserAvatar() {
+  try {
+    const res = await apiCall(`${API}/Doctor/profile`);
+    if (!res||!res.ok) return;
+    const d = await res.json();
+    const name = d.name||d.doctorName||'Doctor';
+    document.getElementById('userAvatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=2563EB&color=fff&size=80`;
+  } catch {}
+}
+
+// ── TOAST ──
+function showToast(msg,type='success'){
+  const c=document.getElementById('toastContainer');
+  const icons={success:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`,error:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`};
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;
+  t.innerHTML=`${icons[type]||icons.success}<span class="toast-msg">${escHtml(msg)}</span><button class="toast-x" onclick="this.parentElement.remove()">×</button>`;
+  c.appendChild(t);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('show')));
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),500);},4000);
+}
+
+// ── HELPERS ──
+function getRisk(r){const v=r.riskLevel??r.aiAnalysis?.riskLevel??r.riskScore??r.aiAnalysis?.riskScore??null;if(v===null)return 'Stable';if(typeof v==='string'){if(v==='Critical'||v==='critical')return 'Critical';if(v==='Moderate'||v==='moderate')return 'Moderate';return 'Stable';}if(typeof v==='number'){if(v>=70)return 'Critical';if(v>=40)return 'Moderate';return 'Stable';}return 'Stable';}
+function formatDate(s){if(!s)return '—';const d=new Date(s);return isNaN(d)?s:d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function getInitials(n){return String(n||'').split(' ').filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('');}
+const AC=[{bg:'rgba(37,99,235,0.12)',text:'#2563EB'},{bg:'rgba(16,185,129,0.12)',text:'#10B981'},{bg:'rgba(245,158,11,0.12)',text:'#F59E0B'},{bg:'rgba(239,68,68,0.12)',text:'#EF4444'},{bg:'rgba(139,92,246,0.12)',text:'#8B5CF6'}];
+function avatarColor(n){let h=0;for(const c of String(n||''))h=(h*31+c.charCodeAt(0))&0xffffffff;return AC[Math.abs(h)%AC.length];}
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+
+</html>

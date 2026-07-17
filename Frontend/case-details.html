@@ -1,0 +1,2638 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartFollow Up | Case Details</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-main: #f8fafc;
+        --bg-card: #ffffff;
+        --bg-sidebar: #ffffff;
+        --bg-input: #f1f5f9;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+        --border: #e2e8f0;
+        --primary: #2563eb;
+        --primary-light: rgba(37, 99, 235, 0.1);
+        --success: #10b981;
+        --warning: #f59e0b;
+        --error: #ef4444;
+        --shadow:
+          0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+        --shadow-md: 0 8px 16px -4px rgba(0, 0, 0, 0.1);
+        --sidebar-width: 260px;
+        --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      [data-theme="dark"] {
+        --bg-main: #020617;
+        --bg-card: #0f172a;
+        --bg-sidebar: #0f172a;
+        --bg-input: #1e293b;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --border: #1e293b;
+        --primary: #3b82f6;
+        --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+        --shadow-md: 0 8px 16px -4px rgba(0, 0, 0, 0.5);
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--bg-main);
+        color: var(--text-main);
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+        transition:
+          background-color var(--transition),
+          color var(--transition);
+      }
+      ::-webkit-scrollbar {
+        width: 5px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 10px;
+      }
+
+      /* ── SIDEBAR ── */
+      aside {
+        width: var(--sidebar-width);
+        background: var(--bg-sidebar);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        padding: 24px;
+        z-index: 100;
+        transition: var(--transition);
+        flex-shrink: 0;
+      }
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 20px;
+        color: var(--primary);
+        margin-bottom: 40px;
+        text-decoration: none;
+      }
+      .logo svg {
+        width: 26px;
+        height: 26px;
+        flex-shrink: 0;
+      }
+      .nav-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        flex: 1;
+      }
+      .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 11px 12px;
+        text-decoration: none;
+        color: var(--text-muted);
+        font-weight: 500;
+        border-radius: 10px;
+        transition: var(--transition);
+        font-size: 14px;
+        white-space: nowrap;
+      }
+      .nav-link:hover,
+      .nav-link.active {
+        background: var(--primary-light);
+        color: var(--primary);
+      }
+      .nav-link svg {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+      }
+      .nav-bottom {
+        margin-top: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      /* ── MAIN ── */
+      main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-width: 0;
+      }
+
+      /* ── HEADER ── */
+      header {
+        height: 68px;
+        background: var(--bg-card);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 28px;
+        flex-shrink: 0;
+        gap: 12px;
+      }
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .mobile-menu-btn {
+        display: none;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--text-main);
+        padding: 6px;
+        border-radius: 8px;
+      }
+      .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+      }
+      .breadcrumb a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 500;
+        transition: var(--transition);
+      }
+      .breadcrumb a:hover {
+        color: var(--primary);
+      }
+      .breadcrumb svg {
+        color: var(--text-muted);
+      }
+      .breadcrumb span {
+        font-weight: 600;
+        color: var(--text-main);
+      }
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+      }
+      .theme-toggle {
+        cursor: pointer;
+        padding: 7px;
+        border-radius: 9px;
+        border: 1px solid var(--border);
+        background: var(--bg-card);
+        color: var(--text-main);
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+      }
+      .theme-toggle:hover {
+        background: var(--bg-input);
+      }
+      .icon-btn {
+        position: relative;
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 7px;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        transition: var(--transition);
+      }
+      .icon-btn:hover {
+        background: var(--bg-input);
+        color: var(--text-main);
+      }
+      .notif-dot {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        width: 7px;
+        height: 7px;
+        background: var(--error);
+        border-radius: 50%;
+        border: 2px solid var(--bg-card);
+      }
+      .avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        border: 2px solid var(--primary);
+        cursor: pointer;
+      }
+
+      /* ── CONTENT ── */
+      .content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 24px 28px;
+      }
+
+      /* ── PAGE HEADER ── */
+      .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 24px;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .patient-hero {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .patient-big-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+      .patient-info h1 {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 3px;
+      }
+      .patient-meta {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .meta-tag {
+        font-size: 12px;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .header-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      /* ── BUTTONS ── */
+      .btn-primary {
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        transition: var(--transition);
+        font-family: "Inter", sans-serif;
+        white-space: nowrap;
+      }
+      .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 15px -3px rgba(37, 99, 235, 0.4);
+      }
+      .btn-secondary {
+        background: var(--bg-card);
+        color: var(--text-main);
+        border: 1px solid var(--border);
+        padding: 9px 16px;
+        border-radius: 10px;
+        font-weight: 500;
+        font-size: 13px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        transition: var(--transition);
+        font-family: "Inter", sans-serif;
+        white-space: nowrap;
+      }
+      .btn-secondary:hover {
+        background: var(--bg-input);
+      }
+      .btn-danger {
+        background: rgba(239, 68, 68, 0.08);
+        color: var(--error);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        padding: 9px 16px;
+        border-radius: 10px;
+        font-weight: 500;
+        font-size: 13px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        transition: var(--transition);
+        font-family: "Inter", sans-serif;
+      }
+      .btn-danger:hover {
+        background: rgba(239, 68, 68, 0.15);
+      }
+
+      /* ── RISK BADGES ── */
+      .risk-badge {
+        padding: 5px 11px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .risk-badge::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+      }
+      .risk-stable {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+      }
+      .risk-stable::before {
+        background: var(--success);
+      }
+      .risk-moderate {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+      }
+      .risk-moderate::before {
+        background: var(--warning);
+      }
+      .risk-critical {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--error);
+        animation: pulseBadge 2s infinite;
+      }
+      .risk-critical::before {
+        background: var(--error);
+      }
+      @keyframes pulseBadge {
+        0% {
+          box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3);
+        }
+        70% {
+          box-shadow: 0 0 0 7px rgba(239, 68, 68, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+        }
+      }
+      .status-badge {
+        padding: 5px 11px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .status-active {
+        background: rgba(37, 99, 235, 0.1);
+        color: var(--primary);
+      }
+      .status-closed {
+        background: var(--bg-input);
+        color: var(--text-muted);
+      }
+
+      /* ── GRID LAYOUT ── */
+      .details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-rows: auto;
+        gap: 20px;
+      }
+      .col-left {
+        grid-column: 1/3;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .col-right {
+        grid-column: 3/4;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      /* ── CARDS ── */
+      .card {
+        background: var(--bg-card);
+        border-radius: 18px;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        animation: fadeInUp 0.4s both;
+      }
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .card:nth-child(2) {
+        animation-delay: 0.06s;
+      }
+      .card:nth-child(3) {
+        animation-delay: 0.12s;
+      }
+      .card:nth-child(4) {
+        animation-delay: 0.18s;
+      }
+      .card:nth-child(5) {
+        animation-delay: 0.24s;
+      }
+      .card-header {
+        padding: 18px 20px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+      .card-title {
+        font-size: 14px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .card-title-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .card-title-icon.blue {
+        background: var(--primary-light);
+        color: var(--primary);
+      }
+      .card-title-icon.green {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+      }
+      .card-title-icon.yellow {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+      }
+      .card-title-icon.red {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--error);
+      }
+      .card-title-icon.purple {
+        background: rgba(139, 92, 246, 0.1);
+        color: #8b5cf6;
+      }
+      .card-body {
+        padding: 0 20px 20px;
+      }
+
+      /* ── INFO GRID ── */
+      .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .info-item {
+      }
+      .info-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-bottom: 4px;
+      }
+      .info-value {
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      /* ── TABS ── */
+      .tab-nav {
+        display: flex;
+        gap: 2px;
+        background: var(--bg-input);
+        padding: 3px;
+        border-radius: 10px;
+        margin: 0 20px 16px;
+      }
+      .tab-btn {
+        flex: 1;
+        padding: 8px 10px;
+        border: none;
+        background: none;
+        border-radius: 8px;
+        font-family: "Inter", sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: var(--transition);
+        white-space: nowrap;
+      }
+      .tab-btn.active {
+        background: var(--bg-card);
+        color: var(--primary);
+        box-shadow: var(--shadow);
+      }
+      .tab-content {
+        display: none;
+        padding: 0 20px 20px;
+      }
+      .tab-content.active {
+        display: block;
+      }
+
+      /* ── REPORTS LIST ── */
+      .report-item {
+        padding: 14px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+      .report-item:hover {
+        border-color: var(--primary);
+        background: var(--primary-light);
+      }
+      .report-item:last-child {
+        margin-bottom: 0;
+      }
+      .report-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .report-date {
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .report-vitals {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .vital {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .vital-icon {
+        width: 26px;
+        height: 26px;
+        border-radius: 7px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .vital-label {
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+      .vital-value {
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .vital-group {
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* ── NOTES ── */
+      .note-item {
+        padding: 12px 14px;
+        border-radius: 10px;
+        background: var(--bg-input);
+        margin-bottom: 8px;
+      }
+      .note-item:last-child {
+        margin-bottom: 0;
+      }
+      .note-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+      }
+      .note-author {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--primary);
+      }
+      .note-time {
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+      .note-content {
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      /* ── ALERTS ── */
+      .alert-item {
+        padding: 12px 14px;
+        border-radius: 10px;
+        border-left: 3px solid;
+        margin-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .alert-item:last-child {
+        margin-bottom: 0;
+      }
+      .alert-critical {
+        background: rgba(239, 68, 68, 0.07);
+        border-color: var(--error);
+      }
+      .alert-warning {
+        background: rgba(245, 158, 11, 0.07);
+        border-color: var(--warning);
+      }
+      .alert-info {
+        background: var(--primary-light);
+        border-color: var(--primary);
+      }
+      .alert-text {
+        font-size: 13px;
+        font-weight: 500;
+      }
+      .alert-time {
+        font-size: 11px;
+        color: var(--text-muted);
+        white-space: nowrap;
+      }
+      .alert-handle-btn {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--primary);
+        background: none;
+        border: 1px solid var(--primary);
+        border-radius: 6px;
+        padding: 3px 8px;
+        cursor: pointer;
+        font-family: "Inter", sans-serif;
+        transition: var(--transition);
+        white-space: nowrap;
+      }
+      .alert-handle-btn:hover {
+        background: var(--primary-light);
+      }
+
+      /* ── PRESCRIPTIONS ── */
+      .rx-item {
+        padding: 14px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        margin-bottom: 10px;
+      }
+      .rx-item:last-child {
+        margin-bottom: 0;
+      }
+      .rx-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .rx-date {
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+      .rx-instructions {
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-bottom: 10px;
+        line-height: 1.5;
+      }
+      .rx-meds {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .rx-med {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+      }
+      .rx-med-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--primary);
+        flex-shrink: 0;
+      }
+
+      /* ── WOUND IMAGES ── */
+      .images-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 8px;
+      }
+      .wound-img-wrap {
+        position: relative;
+        border-radius: 10px;
+        overflow: hidden;
+        aspect-ratio: 1;
+        background: var(--bg-input);
+        cursor: pointer;
+        border: 1px solid var(--border);
+      }
+      .wound-img-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s;
+      }
+      .wound-img-wrap:hover img {
+        transform: scale(1.05);
+      }
+      .wound-img-date {
+        position: absolute;
+        bottom: 4px;
+        left: 4px;
+        background: rgba(0, 0, 0, 0.6);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 600;
+        padding: 2px 6px;
+        border-radius: 5px;
+      }
+
+      /* ── RISK SCORE ── */
+      .risk-score-wrap {
+        padding: 0 20px 20px;
+      }
+      .risk-bar-bg {
+        height: 10px;
+        background: var(--bg-input);
+        border-radius: 99px;
+        overflow: hidden;
+        margin-bottom: 8px;
+      }
+      .risk-bar-fill {
+        height: 100%;
+        border-radius: 99px;
+        transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .risk-bar-fill.stable {
+        background: linear-gradient(90deg, #10b981, #34d399);
+      }
+      .risk-bar-fill.moderate {
+        background: linear-gradient(90deg, #f59e0b, #fbbf24);
+      }
+      .risk-bar-fill.critical {
+        background: linear-gradient(90deg, #ef4444, #f87171);
+      }
+      .risk-score-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+      .risk-score-value {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      .risk-score-label {
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+
+      /* ── MODAL ── */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(4px);
+        z-index: 200;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      .modal-overlay.open {
+        display: flex;
+      }
+      .modal {
+        background: var(--bg-card);
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        width: 100%;
+        max-width: 500px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      @keyframes modalIn {
+        from {
+          opacity: 0;
+          transform: scale(0.93) translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
+      .modal-header {
+        padding: 22px 24px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .modal-title {
+        font-size: 17px;
+        font-weight: 700;
+      }
+      .modal-close {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--bg-card);
+        color: var(--text-muted);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+      }
+      .modal-close:hover {
+        background: var(--bg-input);
+      }
+      .modal-body {
+        padding: 0 24px;
+      }
+      .modal-footer {
+        padding: 20px 24px;
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+      .form-group {
+        margin-bottom: 16px;
+      }
+      .form-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+      .form-label span {
+        color: var(--error);
+      }
+      .form-input,
+      .form-select,
+      .form-textarea {
+        width: 100%;
+        padding: 10px 13px;
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text-main);
+        font-family: "Inter", sans-serif;
+        font-size: 14px;
+        outline: none;
+        transition: var(--transition);
+      }
+      .form-input:focus,
+      .form-select:focus,
+      .form-textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-light);
+      }
+      .form-textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      /* ── SKELETON ── */
+      .skeleton {
+        background: linear-gradient(
+          90deg,
+          var(--bg-input) 25%,
+          var(--border) 50%,
+          var(--bg-input) 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.4s infinite;
+        border-radius: 6px;
+        height: 14px;
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+
+      /* ── EMPTY ── */
+      .empty-mini {
+        padding: 28px 20px;
+        text-align: center;
+        color: var(--text-muted);
+      }
+      .empty-mini svg {
+        width: 36px;
+        height: 36px;
+        margin-bottom: 8px;
+      }
+      .empty-mini p {
+        font-size: 13px;
+      }
+
+      /* ── TOAST ── */
+      .toast-container {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 300;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .toast {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        padding: 12px 16px;
+        border-radius: 12px;
+        box-shadow: var(--shadow-md);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 260px;
+        transform: translateX(120%);
+        transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      }
+      .toast.show {
+        transform: translateX(0);
+      }
+      .toast.success {
+        border-left: 3px solid var(--success);
+      }
+      .toast.error {
+        border-left: 3px solid var(--error);
+      }
+      .toast-msg {
+        flex: 1;
+        font-size: 13px;
+        font-weight: 500;
+      }
+      .toast-x {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--text-muted);
+        padding: 0;
+      }
+
+      /* ── LIGHTBOX ── */
+      .lightbox {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 400;
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+      .lightbox.open {
+        display: flex;
+      }
+      .lightbox img {
+        max-width: 90vw;
+        max-height: 90vh;
+        border-radius: 12px;
+        object-fit: contain;
+      }
+      .lightbox-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: #fff;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* ── RESPONSIVE ── */
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 99;
+      }
+      @media (max-width: 1200px) {
+        .details-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .col-left {
+          grid-column: 1/2;
+        }
+        .col-right {
+          grid-column: 2/3;
+        }
+      }
+      @media (max-width: 1024px) {
+        aside {
+          width: 72px;
+          padding: 20px 10px;
+        }
+        .logo span,
+        .nav-link span {
+          display: none;
+        }
+        .logo {
+          justify-content: center;
+        }
+        .nav-link {
+          justify-content: center;
+        }
+      }
+      @media (max-width: 768px) {
+        aside {
+          position: fixed;
+          left: -100%;
+          top: 0;
+          height: 100%;
+          width: 250px;
+          padding: 24px;
+          transition: left var(--transition);
+          z-index: 200;
+        }
+        aside.open {
+          left: 0;
+        }
+        .logo span,
+        .nav-link span {
+          display: flex;
+        }
+        .nav-link {
+          justify-content: flex-start;
+        }
+        .mobile-menu-btn {
+          display: flex;
+        }
+        .sidebar-overlay.open {
+          display: block;
+        }
+        .details-grid {
+          grid-template-columns: 1fr;
+        }
+        .col-left,
+        .col-right {
+          grid-column: 1/2;
+        }
+        .content {
+          padding: 16px;
+        }
+      }
+      @media (max-width: 480px) {
+        .header-actions {
+          width: 100%;
+        }
+        .info-grid {
+          grid-template-columns: 1fr;
+        }
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  <link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#2563EB"/>
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="SmartFollow"/>
+</head>
+  <body>
+    <div
+      class="sidebar-overlay"
+      id="sidebarOverlay"
+      onclick="closeSidebar()"
+    ></div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+      <a href="doctor-dashboard.html" class="logo">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+        </svg>
+        <span>SmartFollow</span>
+      </a>
+      <nav class="nav-group">
+        <a href="doctor-dashboard.html" class="nav-link active">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="3" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="14" width="7" height="7" rx="1" />
+            <rect x="3" y="14" width="7" height="7" rx="1" />
+          </svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="doctor-dashboard.html" class="nav-link">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+          <span>All Cases</span>
+        </a>
+        <a href="alerts.html" class="nav-link">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+          </svg>
+          <span>Alerts</span>
+        </a>
+        <a href="prescriptions.html" class="nav-link">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M9 11l3 3L22 4" />
+            <path
+              d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"
+            />
+          </svg>
+          <span>Prescriptions</span>
+        </a>
+      </nav>
+      <div class="nav-bottom">
+        <a href="#" class="nav-link">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="8" r="4" />
+            <path d="M20 21a8 8 0 1 0-16 0" />
+          </svg>
+          <span>Profile</span>
+        </a>
+        <a href="login.html" class="nav-link" onclick="logout(event)">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          <span>Logout</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main>
+      <header>
+        <div class="header-left">
+          <button class="mobile-menu-btn" onclick="toggleSidebar()">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+          <div class="breadcrumb">
+            <a href="doctor-dashboard.html">Dashboard</a>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+            <a href="doctor-dashboard.html">Cases</a>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+            <span id="breadcrumbName">Loading...</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="theme-toggle" id="themeToggle">
+            <svg
+              id="themeIcon"
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+          </button>
+          <button class="icon-btn">
+            <svg
+              width="19"
+              height="19"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+            <span class="notif-dot"></span>
+          </button>
+          <img src="" class="avatar" id="userAvatar" alt="Doctor" />
+        </div>
+      </header>
+
+      <div class="content">
+        <!-- PAGE HEADER -->
+        <div class="page-header">
+          <div class="patient-hero">
+            <div
+              class="patient-big-avatar"
+              id="patientBigAvatar"
+              style="background: rgba(37, 99, 235, 0.1); color: #2563eb"
+            >
+              <div
+                class="skeleton"
+                style="width: 56px; height: 56px; border-radius: 16px"
+              ></div>
+            </div>
+            <div class="patient-info">
+              <h1 id="patientName">Loading...</h1>
+              <div class="patient-meta">
+                <span class="meta-tag" id="caseIdTag">
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect x="2" y="7" width="20" height="14" rx="2" />
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                  </svg>
+                  Case #—
+                </span>
+                <span class="meta-tag" id="operationTag">
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                  </svg>
+                  —
+                </span>
+                <span id="riskBadgeHeader"></span>
+                <span id="statusBadgeHeader"></span>
+              </div>
+            </div>
+          </div>
+          <div class="header-actions">
+            <button class="btn-secondary" onclick="openModal('noteModal')">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+              </svg>
+              Add Note
+            </button>
+            <button class="btn-primary" onclick="openModal('rxModal')">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M9 11l3 3L22 4" />
+                <path
+                  d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"
+                />
+              </svg>
+              New Prescription
+            </button>
+            <button class="btn-danger" id="closeCaseBtn" onclick="closeCase()">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="3 6 5 6 21 6" />
+                <path
+                  d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                />
+              </svg>
+              Close Case
+            </button>
+          </div>
+        </div>
+
+        <!-- GRID -->
+        <div class="details-grid">
+          <!-- LEFT COL -->
+          <div class="col-left">
+            <!-- Patient Info -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <div class="card-title-icon blue">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <circle cx="12" cy="8" r="4" />
+                      <path d="M20 21a8 8 0 1 0-16 0" />
+                    </svg>
+                  </div>
+                  Patient Information
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="info-grid" id="patientInfoGrid">
+                  <div class="info-item">
+                    <div class="info-label">Full Name</div>
+                    <div class="info-value" id="infoName">
+                      <div class="skeleton" style="width: 120px"></div>
+                    </div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">Email</div>
+                    <div
+                      class="info-value"
+                      id="infoEmail"
+                      style="font-size: 13px"
+                    >
+                      <div class="skeleton" style="width: 140px"></div>
+                    </div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">Phone</div>
+                    <div class="info-value" id="infoPhone">
+                      <div class="skeleton" style="width: 100px"></div>
+                    </div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">Age</div>
+                    <div class="info-value" id="infoAge">
+                      <div class="skeleton" style="width: 60px"></div>
+                    </div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">Gender</div>
+                    <div class="info-value" id="infoGender">
+                      <div class="skeleton" style="width: 60px"></div>
+                    </div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">Operation Date</div>
+                    <div class="info-value" id="infoOpDate">
+                      <div class="skeleton" style="width: 100px"></div>
+                    </div>
+                  </div>
+                  <div class="info-item" style="grid-column: 1/-1">
+                    <div class="info-label">Chronic Diseases</div>
+                    <div
+                      class="info-value"
+                      id="infoChronic"
+                      style="font-size: 13px; font-weight: 400"
+                    >
+                      <div class="skeleton" style="width: 200px"></div>
+                    </div>
+                  </div>
+                  <div class="info-item" style="grid-column: 1/-1">
+                    <div class="info-label">Allergies</div>
+                    <div
+                      class="info-value"
+                      id="infoAllergies"
+                      style="font-size: 13px; font-weight: 400"
+                    >
+                      <div class="skeleton" style="width: 160px"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reports + Notes + Prescriptions Tabs -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <div class="card-title-icon green">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                      />
+                      <polyline points="14 2 14 8 20 8" />
+                    </svg>
+                  </div>
+                  Case Activity
+                </div>
+              </div>
+              <div class="tab-nav">
+                <button
+                  class="tab-btn active"
+                  onclick="switchTab('reports', this)"
+                >
+                  Daily Reports
+                </button>
+                <button class="tab-btn" onclick="switchTab('notes', this)">
+                  Notes
+                </button>
+                <button
+                  class="tab-btn"
+                  onclick="switchTab('prescriptions', this)"
+                >
+                  Prescriptions
+                </button>
+                <button class="tab-btn" onclick="switchTab('images', this)">
+                  Wound Images
+                </button>
+              </div>
+
+              <!-- Reports Tab -->
+              <div class="tab-content active" id="tab-reports">
+                <div id="reportsList">
+                  <div class="empty-mini"><p>Loading reports...</p></div>
+                </div>
+              </div>
+
+              <!-- Notes Tab -->
+              <div class="tab-content" id="tab-notes">
+                <div id="notesList">
+                  <div class="empty-mini"><p>Loading notes...</p></div>
+                </div>
+              </div>
+
+              <!-- Prescriptions Tab -->
+              <div class="tab-content" id="tab-prescriptions">
+                <div id="rxList">
+                  <div class="empty-mini"><p>Loading prescriptions...</p></div>
+                </div>
+              </div>
+
+              <!-- Wound Images Tab -->
+              <div class="tab-content" id="tab-images">
+                <div id="imagesList">
+                  <div class="empty-mini"><p>Loading images...</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT COL -->
+          <div class="col-right">
+            <!-- Risk Score -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <div class="card-title-icon red">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <polygon
+                        points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"
+                      />
+                      <line x1="12" y1="8" x2="12" y2="12" />
+                      <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                  </div>
+                  Risk Assessment
+                </div>
+              </div>
+              <div class="risk-score-wrap">
+                <div id="riskScoreValue" class="risk-score-value">—</div>
+                <div class="risk-score-label" id="riskScoreLabel">
+                  Loading latest report...
+                </div>
+                <div style="height: 12px"></div>
+                <div class="risk-bar-bg">
+                  <div
+                    class="risk-bar-fill"
+                    id="riskBarFill"
+                    style="width: 0%"
+                  ></div>
+                </div>
+                <div class="risk-score-labels">
+                  <span>0</span><span>Stable</span><span>Moderate</span
+                  ><span>Critical</span><span>100</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Open Alerts -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <div class="card-title-icon yellow">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                    </svg>
+                  </div>
+                  Open Alerts
+                </div>
+              </div>
+              <div class="card-body">
+                <div id="alertsList">
+                  <div class="empty-mini"><p>Loading...</p></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Case Notes Quick -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <div class="card-title-icon purple">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                      />
+                    </svg>
+                  </div>
+                  Latest Note
+                </div>
+                <button
+                  class="btn-secondary"
+                  style="padding: 6px 10px; font-size: 12px"
+                  onclick="openModal('noteModal')"
+                >
+                  + Add
+                </button>
+              </div>
+              <div class="card-body">
+                <div id="latestNote">
+                  <div class="skeleton" style="height: 50px"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ADD NOTE MODAL -->
+    <div class="modal-overlay" id="noteModal">
+      <div class="modal">
+        <div class="modal-header">
+          <span class="modal-title">Add Doctor Note</span>
+          <button class="modal-close" onclick="closeModal('noteModal')">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Note Content <span>*</span></label>
+            <textarea
+              class="form-textarea"
+              id="noteContent"
+              placeholder="Write your clinical observation..."
+              style="min-height: 120px"
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" onclick="closeModal('noteModal')">
+            Cancel
+          </button>
+          <button class="btn-primary" id="saveNoteBtn" onclick="saveNote()">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
+              />
+              <polyline points="17 21 17 13 7 13 7 21" />
+              <polyline points="7 3 7 8 15 8" />
+            </svg>
+            Save Note
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRESCRIPTION MODAL -->
+    <div class="modal-overlay" id="rxModal">
+      <div class="modal" style="max-width: 560px">
+        <div class="modal-header">
+          <span class="modal-title">New Prescription</span>
+          <button class="modal-close" onclick="closeModal('rxModal')">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Instructions</label>
+            <textarea
+              class="form-textarea"
+              id="rxInstructions"
+              placeholder="General instructions for this prescription..."
+            ></textarea>
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 12px;
+            "
+          >
+            <label class="form-label" style="margin: 0">Medications</label>
+            <button
+              class="btn-secondary"
+              style="padding: 6px 10px; font-size: 12px"
+              onclick="addMedRow()"
+            >
+              + Add Med
+            </button>
+          </div>
+          <div id="medsContainer">
+            <!-- Med rows added dynamically -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" onclick="closeModal('rxModal')">
+            Cancel
+          </button>
+          <button class="btn-primary" id="saveRxBtn" onclick="saveRx()">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M9 11l3 3L22 4" />
+            </svg>
+            Save Prescription
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIGHTBOX -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+      <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+      <img id="lightboxImg" src="" alt="Wound image" />
+    </div>
+
+    <!-- TOASTS -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+      const API = "http://localhost:5290/api";
+      const params = new URLSearchParams(location.search);
+      const CASE_ID = params.get("id");
+      let caseData = null;
+      let medCount = 0;
+
+      // ── INIT ──
+      window.addEventListener("DOMContentLoaded", () => {
+        const token = localStorage.getItem("token");
+        const role = localStorage.getItem("userRole");
+        if (!token || !role) {
+          window.location.href = "login.html";
+          return;
+        }
+        if (role !== "Doctor") {
+          localStorage.clear();
+          window.location.href = "login.html";
+          return;
+        }
+        if (!CASE_ID) {
+          showToast("No case ID provided.", "error");
+          return;
+        }
+        initTheme();
+        loadUserAvatar();
+        loadCase();
+      });
+
+      // ── AUTH ──
+      function headers() {
+        return {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        };
+      }
+      let refreshPromise = null;
+      async function apiCall(url, opts = {}) {
+        opts.headers = headers();
+        let res = await fetch(url, opts);
+        if (res.status === 401) {
+          const rt = localStorage.getItem("refreshToken");
+          if (!rt) {
+            logout();
+            return null;
+          }
+          if (!refreshPromise) {
+            refreshPromise = fetch(`${API}/Auth/refresh-token`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ refreshToken: rt }),
+            }).then(async (r) => {
+              if (!r.ok) throw new Error("refresh_failed");
+              const d = await r.json();
+              localStorage.setItem("token", d.accessToken);
+              if (d.refreshToken) localStorage.setItem("refreshToken", d.refreshToken);
+            }).finally(() => { refreshPromise = null; });
+          }
+          try {
+            await refreshPromise;
+          } catch {
+            logout();
+            return null;
+          }
+          opts.headers = headers();
+          res = await fetch(url, opts);
+        }
+        return res;
+      }
+      function logout(e) {
+        if (e) e.preventDefault();
+        localStorage.clear();
+        location.href = "login.html";
+      }
+
+      // ── LOAD CASE ──
+      async function loadCase() {
+        try {
+          const res = await apiCall(`${API}/Cases/${CASE_ID}`);
+          if (!res || !res.ok) {
+            showToast("Failed to load case.", "error");
+            return;
+          }
+          caseData = await res.json();
+          renderCase(caseData);
+          loadReports();
+          loadNotes();
+          loadPrescriptions();
+          loadWoundImages();
+          loadAlerts();
+        } catch (e) {
+          showToast("Network error.", "error");
+        }
+      }
+
+      function renderCase(c) {
+        const pName = c.patientName || c.name || "Unknown";
+        document.getElementById("patientName").textContent = pName;
+        document.getElementById("breadcrumbName").textContent = pName;
+        document.title = `SmartFollow Up | ${pName}`;
+
+        // Big avatar
+        const av = document.getElementById("patientBigAvatar");
+        const { bg, text } = avatarColor(pName);
+        av.style.background = bg;
+        av.style.color = text;
+        av.textContent = getInitials(pName);
+
+        // Meta
+        document.getElementById("caseIdTag").innerHTML =
+          `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg> Case #${c.id}`;
+        document.getElementById("operationTag").innerHTML =
+          `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> ${c.operationType || "—"}`;
+
+        const risk = getRiskLabel(c.currentRiskLevel ?? c.riskLevel);
+        document.getElementById("riskBadgeHeader").innerHTML =
+          `<span class="risk-badge risk-${risk.toLowerCase()}">${risk}</span>`;
+        const status =
+          c.status === 0 || c.status === "Active" ? "active" : "closed";
+        document.getElementById("statusBadgeHeader").innerHTML =
+          `<span class="status-badge status-${status}">${status === "active" ? "Active" : "Closed"}</span>`;
+        if (status === "closed")
+          document.getElementById("closeCaseBtn").style.display = "none";
+
+        // Info grid
+        document.getElementById("infoName").textContent = pName;
+        document.getElementById("infoEmail").textContent =
+          c.patientEmail || "—";
+        document.getElementById("infoPhone").textContent =
+          c.patientPhone || "—";
+        document.getElementById("infoAge").textContent = c.patientAge ?? "—";
+        document.getElementById("infoGender").textContent =
+          c.gender === 0 ? "Male" : c.gender === 1 ? "Female" : "—";
+        document.getElementById("infoOpDate").textContent = c.operationDate
+          ? formatDateFull(c.operationDate)
+          : "—";
+        document.getElementById("infoChronic").textContent =
+          c.chronicDiseases || "None reported";
+        document.getElementById("infoAllergies").textContent =
+          c.allergies || "None reported";
+
+        // Risk score from latest AI analysis if available
+        if (c.latestRiskScore !== undefined && c.latestRiskScore !== null)
+          renderRiskScore(c.latestRiskScore, risk);
+      }
+
+      // ── LOAD REPORTS ──
+      async function loadReports() {
+        const res = await apiCall(
+          `${API}/Reports/case/${CASE_ID}?page=1&pageSize=20`,
+        );
+        if (!res || !res.ok) {
+          document.getElementById("reportsList").innerHTML = emptyHTML(
+            "No reports submitted yet.",
+          );
+          return;
+        }
+        const data = await res.json();
+        const reports = data.items || data.data || data || [];
+        if (!reports.length) {
+          document.getElementById("reportsList").innerHTML = emptyHTML(
+            "No reports submitted yet.",
+          );
+          return;
+        }
+
+        // Render risk from latest report AI
+        const latest = reports[0];
+        if (latest.riskLevel || latest.aiAnalysis) {
+          renderRiskScore(
+            latest.riskScore ?? latest.aiAnalysis?.riskScore,
+            latest.riskLevel ?? latest.aiAnalysis?.riskLevel,
+          );
+        }
+
+        document.getElementById("reportsList").innerHTML = reports
+          .map((r) => {
+            const risk = (r.riskLevel || r.aiAnalysis)
+              ? getRiskLabel(r.riskLevel ?? r.aiAnalysis?.riskLevel ?? r.riskScore ?? r.aiAnalysis?.riskScore)
+              : "Stable";
+            return `<div class="report-item" onclick="expandReport(this)">
+      <div class="report-top">
+        <span class="report-date">${formatDateFull(r.submittedAt)}</span>
+        <span class="risk-badge risk-${risk.toLowerCase()}">${risk}</span>
+      </div>
+      <div class="report-vitals">
+        <div class="vital">
+          <div class="vital-icon" style="background:rgba(239,68,68,0.1)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg></div>
+          <div class="vital-group"><div class="vital-label">Temperature</div><div class="vital-value">${r.temperature}°C</div></div>
+        </div>
+        <div class="vital">
+          <div class="vital-icon" style="background:rgba(245,158,11,0.1)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+          <div class="vital-group"><div class="vital-label">Pain Level</div><div class="vital-value">${r.painLevel}/10</div></div>
+        </div>
+        <div class="vital">
+          <div class="vital-icon" style="background:rgba(37,99,235,0.1)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+          <div class="vital-group"><div class="vital-label">Swelling</div><div class="vital-value">${r.swelling ? "Yes" : "No"}</div></div>
+        </div>
+        <div class="vital">
+          <div class="vital-icon" style="background:rgba(239,68,68,0.07)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <div class="vital-group"><div class="vital-label">Bleeding</div><div class="vital-value">${r.bleeding ? "Yes" : "No"}</div></div>
+        </div>
+      </div>
+      ${r.notes ? `<div style="margin-top:10px;font-size:12px;color:var(--text-muted);padding-top:10px;border-top:1px solid var(--border)">${escHtml(r.notes)}</div>` : ""}
+    </div>`;
+          })
+          .join("");
+      }
+
+      // ── LOAD NOTES ──
+      async function loadNotes() {
+        const res = await apiCall(`${API}/Notes/case/${CASE_ID}`);
+        if (!res || !res.ok) {
+          document.getElementById("notesList").innerHTML = emptyHTML(
+            "No notes added yet.",
+          );
+          document.getElementById("latestNote").innerHTML =
+            '<p style="font-size:13px;color:var(--text-muted)">No notes yet.</p>';
+          return;
+        }
+        const notes = await res.json();
+        const list = notes.items || notes.data || notes || [];
+        if (!list.length) {
+          document.getElementById("notesList").innerHTML = emptyHTML(
+            "No notes added yet.",
+          );
+          document.getElementById("latestNote").innerHTML =
+            '<p style="font-size:13px;color:var(--text-muted)">No notes yet.</p>';
+          return;
+        }
+
+        document.getElementById("notesList").innerHTML = list
+          .map(
+            (n) => `
+    <div class="note-item">
+      <div class="note-header"><span class="note-author">Dr. ${escHtml(n.doctorName || "Doctor")}</span><span class="note-time">${timeAgo(n.createdAt)}</span></div>
+      <div class="note-content">${escHtml(n.content)}</div>
+    </div>`,
+          )
+          .join("");
+
+        const latest = list[0];
+        document.getElementById("latestNote").innerHTML = `
+    <div class="note-item" style="margin:0">
+      <div class="note-header"><span class="note-author">Dr. ${escHtml(latest.doctorName || "Doctor")}</span><span class="note-time">${timeAgo(latest.createdAt)}</span></div>
+      <div class="note-content">${escHtml(latest.content)}</div>
+    </div>`;
+      }
+
+      // ── LOAD PRESCRIPTIONS ──
+      async function loadPrescriptions() {
+        const res = await apiCall(`${API}/Prescriptions/case/${CASE_ID}`);
+        if (!res || !res.ok) {
+          document.getElementById("rxList").innerHTML = emptyHTML(
+            "No prescriptions yet.",
+          );
+          return;
+        }
+        const data = await res.json();
+        const list = data.items || data.data || data || [];
+        if (!list.length) {
+          document.getElementById("rxList").innerHTML = emptyHTML(
+            "No prescriptions yet.",
+          );
+          return;
+        }
+
+        document.getElementById("rxList").innerHTML = list
+          .map(
+            (rx) => `
+    <div class="rx-item">
+      <div class="rx-top">
+        <span style="font-size:13px;font-weight:600">Prescription #${rx.id}</span>
+        <span class="rx-date">${formatDateFull(rx.createdAt)}</span>
+      </div>
+      ${rx.instructions ? `<div class="rx-instructions">${escHtml(rx.instructions)}</div>` : ""}
+      <div class="rx-meds">
+        ${(rx.medications || rx.prescriptionMedications || [])
+          .map(
+            (m) => `
+          <div class="rx-med">
+            <div class="rx-med-dot"></div>
+            <span><strong>${escHtml(m.medicationName)}</strong> — ${escHtml(m.dosage)}, ${escHtml(m.frequency)}, ${m.durationDays} days</span>
+          </div>`,
+          )
+          .join("")}
+      </div>
+    </div>`,
+          )
+          .join("");
+      }
+
+      // ── LOAD WOUND IMAGES ──
+      async function loadWoundImages() {
+        const res = await apiCall(`${API}/WoundImages/case/${CASE_ID}`);
+        if (!res || !res.ok) {
+          document.getElementById("imagesList").innerHTML = emptyHTML(
+            "No wound images uploaded.",
+          );
+          return;
+        }
+        const data = await res.json();
+        const imgs = data.items || data.data || data || [];
+        if (!imgs.length) {
+          document.getElementById("imagesList").innerHTML = emptyHTML(
+            "No wound images uploaded.",
+          );
+          return;
+        }
+        document.getElementById("imagesList").innerHTML =
+          `<div class="images-grid">${imgs
+            .map(
+              (img) => {
+                const fullUrl = img.imageUrl?.startsWith('http') ? img.imageUrl : `${API.replace(/\/api$/, '')}${img.imageUrl}`;
+                const d = new Date(img.uploadedAt);
+                const dateLabel = isNaN(d) ? '' : d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' · ' + d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+                return `
+    <div class="wound-img-wrap" title="From the report submitted on ${dateLabel} — click the photo to enlarge, or the label to view that report">
+      <img src="${escHtml(fullUrl)}" alt="Wound" loading="lazy" onclick="openLightbox('${escHtml(fullUrl)}')" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect fill=%22%23e2e8f0%22 width=%22100%22 height=%22100%22/></svg>'"/>
+      <span class="wound-img-date" style="cursor:pointer" onclick="switchTab('reports', document.querySelector('[onclick*=\\'reports\\']'))">Report · ${dateLabel}</span>
+    </div>`;
+              },
+            )
+            .join("")}</div>`;
+      }
+
+      // ── LOAD ALERTS ──
+      async function loadAlerts() {
+        const res = await apiCall(`${API}/Alerts?page=1&pageSize=10`);
+        if (!res || !res.ok) {
+          document.getElementById("alertsList").innerHTML =
+            emptyHTML("No alerts.");
+          return;
+        }
+        const data = await res.json();
+        const all = data.items || data.data || data || [];
+        const caseAlerts = all.filter(
+          (a) => a.caseId == CASE_ID && (a.status === 0 || a.status === "Open"),
+        );
+        if (!caseAlerts.length) {
+          document.getElementById("alertsList").innerHTML =
+            '<p style="font-size:13px;color:var(--text-muted)">No open alerts for this case.</p>';
+          return;
+        }
+
+        document.getElementById("alertsList").innerHTML = caseAlerts
+          .map((a) => {
+            const typeClass =
+              a.alertType === 2
+                ? "alert-warning"
+                : a.alertType === 0
+                  ? "alert-critical"
+                  : "alert-info";
+            const typeLabel =
+              a.alertType === 0
+                ? "Critical"
+                : a.alertType === 1
+                  ? "Escalation"
+                  : "Warning";
+            return `<div class="alert-item ${typeClass}">
+      <div>
+        <div class="alert-text">${typeLabel} Alert</div>
+        <div class="alert-time">${timeAgo(a.triggeredAt)}</div>
+      </div>
+      <button class="alert-handle-btn" onclick="handleAlert(${a.id},this)">Handle</button>
+    </div>`;
+          })
+          .join("");
+      }
+
+      // ── RISK SCORE ──
+      function renderRiskScore(score, level) {
+        if (score === undefined || score === null) return;
+        const numScore =
+          typeof score === "number" ? score : parseFloat(score) || 0;
+        const label = typeof level === "string" ? level : getRiskLabel(level);
+        document.getElementById("riskScoreValue").textContent = numScore;
+        document.getElementById("riskScoreLabel").textContent =
+          `Latest AI Risk Score (${label})`;
+        const fill = document.getElementById("riskBarFill");
+        setTimeout(() => {
+          fill.style.width = `${Math.min(numScore, 100)}%`;
+        }, 100);
+        fill.className = `risk-bar-fill ${label.toLowerCase()}`;
+      }
+
+      // ── SAVE NOTE ──
+      async function saveNote() {
+        const content = document.getElementById("noteContent").value.trim();
+        if (!content) {
+          showToast("Note content is required.", "error");
+          return;
+        }
+        btnLoad("saveNoteBtn", true, "Saving...");
+        try {
+          const res = await apiCall(`${API}/Notes`, {
+            method: "POST",
+            body: JSON.stringify({ caseId: parseInt(CASE_ID), content }),
+          });
+          if (res && res.ok) {
+            closeModal("noteModal");
+            document.getElementById("noteContent").value = "";
+            showToast("Note added successfully.", "success");
+            loadNotes();
+          } else {
+            const d = await res?.json().catch(() => ({}));
+            const errorMsg =
+              d.message ||
+              d.title ||
+              (d.errors
+                ? Object.values(d.errors).flat().join(", ")
+                : "Failed to save note.");
+            showToast(errorMsg, "error");
+          }
+        } catch {
+          showToast("Network error.", "error");
+        } finally {
+          btnLoad("saveNoteBtn", false, "Save Note");
+        }
+      }
+
+      // ── MED ROWS ──
+      function addMedRow() {
+        medCount++;
+        const id = `med-${medCount}`;
+        const div = document.createElement("div");
+        div.id = id;
+        div.style.cssText =
+          "background:var(--bg-input);border-radius:10px;padding:12px;margin-bottom:10px;";
+        div.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <span style="font-size:12px;font-weight:600;color:var(--text-muted)">Medication ${medCount}</span>
+      <button onclick="document.getElementById('${id}').remove()" style="background:none;border:none;cursor:pointer;color:var(--error);font-size:18px;line-height:1">×</button>
+    </div>
+    <div class="form-row" style="margin-bottom:8px">
+      <div class="form-group" style="margin:0"><label class="form-label" style="font-size:11px">Medication Name</label><input class="form-input" placeholder="e.g. Amoxicillin" data-field="name" style="font-size:13px"/></div>
+      <div class="form-group" style="margin:0"><label class="form-label" style="font-size:11px">Dosage</label><input class="form-input" placeholder="e.g. 500mg" data-field="dosage" style="font-size:13px"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="margin:0"><label class="form-label" style="font-size:11px">Times per day</label>
+        <select class="form-input" data-field="timesPerDay" style="font-size:13px">
+          <option value="1">Once a day</option>
+          <option value="2">Twice a day</option>
+          <option value="3" selected>3 times a day</option>
+          <option value="4">4 times a day</option>
+          <option value="5">5 times a day</option>
+          <option value="6">6 times a day</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin:0"><label class="form-label" style="font-size:11px">Duration (days)</label><input class="form-input" type="number" placeholder="7" data-field="days" style="font-size:13px"/></div>
+    </div>`;
+        document.getElementById("medsContainer").appendChild(div);
+      }
+
+      async function saveRx() {
+        const instructions = document
+          .getElementById("rxInstructions")
+          .value.trim();
+        const medDivs = document.getElementById("medsContainer").children;
+        const medications = [];
+        for (const div of medDivs) {
+          const name = div.querySelector('[data-field="name"]')?.value.trim();
+          const dosage = div
+            .querySelector('[data-field="dosage"]')
+            ?.value.trim();
+          const freq = div
+            .querySelector('[data-field="timesPerDay"]')
+            ?.value;
+          const days = div.querySelector('[data-field="days"]')?.value;
+          if (!name || !dosage || !freq || !days) {
+            showToast("Please fill in all medication fields.", "error");
+            return;
+          }
+          medications.push({
+            medicationName: name,
+            dosage,
+            timesPerDay: parseInt(freq),
+            durationDays: parseInt(days),
+          });
+        }
+        if (!medications.length) {
+          showToast("Add at least one medication.", "error");
+          return;
+        }
+        btnLoad("saveRxBtn", true, "Saving...");
+        try {
+          const res = await apiCall(`${API}/Prescriptions`, {
+            method: "POST",
+            body: JSON.stringify({
+              caseId: parseInt(CASE_ID),
+              instructions: instructions || null,
+              medications,
+            }),
+          });
+          if (res && res.ok) {
+            closeModal("rxModal");
+            document.getElementById("rxInstructions").value = "";
+            document.getElementById("medsContainer").innerHTML = "";
+            medCount = 0;
+            showToast("Prescription created & patient notified.", "success");
+            loadPrescriptions();
+          } else {
+            const d = await res?.json().catch(() => ({}));
+            const errorMsg =
+              d.message ||
+              d.title ||
+              (d.errors
+                ? Object.values(d.errors).flat().join(", ")
+                : "Failed to save prescription.");
+            showToast(errorMsg, "error");
+          }
+        } catch {
+          showToast("Network error.", "error");
+        } finally {
+          btnLoad("saveRxBtn", false, "Save Prescription");
+        }
+      }
+
+      // ── HANDLE ALERT ──
+      async function handleAlert(id, btn) {
+        btn.disabled = true;
+        btn.textContent = "...";
+        try {
+          const res = await apiCall(`${API}/Alerts/${id}/handle`, {
+            method: "PUT",
+          });
+          if (res && res.ok) {
+            showToast("Alert marked as handled.", "success");
+            loadAlerts();
+          } else {
+            const d = await res?.json().catch(() => ({}));
+            const errorMsg =
+              d.message ||
+              d.title ||
+              (d.errors
+                ? Object.values(d.errors).flat().join(", ")
+                : "Failed to handle alert.");
+            showToast(errorMsg, "error");
+            btn.disabled = false;
+            btn.textContent = "Handle";
+          }
+        } catch {
+          showToast("Network error.", "error");
+          btn.disabled = false;
+          btn.textContent = "Handle";
+        }
+      }
+
+      // ── CLOSE CASE ──
+      async function closeCase() {
+        if (
+          !confirm(
+            "Close this case? The patient will no longer be able to submit reports.",
+          )
+        )
+          return;
+        try {
+          const res = await apiCall(`${API}/Cases/${CASE_ID}/close`, {
+            method: "PUT",
+          });
+          if (res && res.ok) {
+            showToast("Case closed successfully.", "success");
+            setTimeout(() => (location.href = "doctor-dashboard.html"), 1500);
+          } else showToast("Failed to close case.", "error");
+        } catch {
+          showToast("Network error.", "error");
+        }
+      }
+
+      // ── TABS ──
+      function switchTab(tab, btn) {
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((b) => b.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((c) => c.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(`tab-${tab}`).classList.add("active");
+      }
+
+      function expandReport(el) {
+        /* could expand to show full details */
+      }
+
+      // ── LIGHTBOX ──
+      function openLightbox(src) {
+        document.getElementById("lightboxImg").src = src;
+        document.getElementById("lightbox").classList.add("open");
+      }
+      function closeLightbox() {
+        document.getElementById("lightbox").classList.remove("open");
+      }
+
+      // ── MODAL ──
+      function openModal(id) {
+        document.getElementById(id).classList.add("open");
+        if (
+          id === "rxModal" &&
+          !document.getElementById("medsContainer").children.length
+        )
+          addMedRow();
+      }
+      function closeModal(id) {
+        document.getElementById(id).classList.remove("open");
+      }
+      document.querySelectorAll(".modal-overlay").forEach((m) =>
+        m.addEventListener("click", (e) => {
+          if (e.target === m) m.classList.remove("open");
+        }),
+      );
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape")
+          document
+            .querySelectorAll(".modal-overlay.open")
+            .forEach((m) => m.classList.remove("open"));
+      });
+
+      // ── THEME ──
+      function initTheme() {
+        const t = localStorage.getItem("theme") || "light";
+        document.documentElement.setAttribute("data-theme", t);
+        updateThemeIcon(t);
+      }
+      document.getElementById("themeToggle").addEventListener("click", () => {
+        const cur = document.documentElement.getAttribute("data-theme");
+        const next = cur === "light" ? "dark" : "light";
+        document.documentElement.setAttribute("data-theme", next);
+        localStorage.setItem("theme", next);
+        updateThemeIcon(next);
+      });
+      function updateThemeIcon(t) {
+        document.getElementById("themeIcon").innerHTML =
+          t === "dark"
+            ? `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`
+            : `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+      }
+
+      // ── SIDEBAR ──
+      function toggleSidebar() {
+        document.getElementById("sidebar").classList.toggle("open");
+        document.getElementById("sidebarOverlay").classList.toggle("open");
+      }
+      function closeSidebar() {
+        document.getElementById("sidebar").classList.remove("open");
+        document.getElementById("sidebarOverlay").classList.remove("open");
+      }
+
+      // ── USER AVATAR ──
+      async function loadUserAvatar() {
+        try {
+          const res = await apiCall(`${API}/Doctor/profile`);
+          if (!res || !res.ok) return;
+          const d = await res.json();
+          const name = d.name || d.doctorName || "Doctor";
+          document.getElementById("userAvatar").src =
+            `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=2563EB&color=fff&size=80`;
+        } catch {}
+      }
+
+      // ── TOAST ──
+      function showToast(msg, type = "success") {
+        const c = document.getElementById("toastContainer");
+        const icons = {
+          success: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`,
+          error: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+        };
+        const t = document.createElement("div");
+        t.className = `toast ${type}`;
+        t.innerHTML = `${icons[type] || icons.success}<span class="toast-msg">${escHtml(msg)}</span><button class="toast-x" onclick="this.parentElement.remove()">×</button>`;
+        c.appendChild(t);
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => t.classList.add("show")),
+        );
+        setTimeout(() => {
+          t.classList.remove("show");
+          setTimeout(() => t.remove(), 500);
+        }, 4000);
+      }
+
+      // ── HELPERS ──
+      function getRiskLabel(v) {
+        if (v === 0 || v === "Stable" || v === "stable" || v === "0")
+          return "Stable";
+        if (v === 1 || v === "Moderate" || v === "moderate") return "Moderate";
+        if (v === 2 || v === "Critical" || v === "critical") return "Critical";
+        if (typeof v === "number") {
+          if (v < 40) return "Stable";
+          if (v < 70) return "Moderate";
+          return "Critical";
+        }
+        return "Stable";
+      }
+      function formatDate(s) {
+        if (!s) return "—";
+        const d = new Date(s);
+        return isNaN(d)
+          ? s
+          : d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      }
+      function formatDateFull(s) {
+        if (!s) return "—";
+        const d = new Date(s);
+        return isNaN(d)
+          ? s
+          : d.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            });
+      }
+      function timeAgo(s) {
+        if (!s) return "—";
+        const d = new Date(s);
+        const diff = Math.floor((Date.now() - d) / 1000);
+        if (diff < 60) return "Just now";
+        if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+        if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+        return formatDate(s);
+      }
+      function escHtml(s) {
+        return String(s || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+      function getInitials(n) {
+        return String(n || "")
+          .split(" ")
+          .filter(Boolean)
+          .slice(0, 2)
+          .map((w) => w[0].toUpperCase())
+          .join("");
+      }
+      const AC = [
+        { bg: "rgba(37,99,235,0.12)", text: "#2563EB" },
+        { bg: "rgba(16,185,129,0.12)", text: "#10B981" },
+        { bg: "rgba(245,158,11,0.12)", text: "#F59E0B" },
+        { bg: "rgba(239,68,68,0.12)", text: "#EF4444" },
+        { bg: "rgba(139,92,246,0.12)", text: "#8B5CF6" },
+      ];
+      function avatarColor(n) {
+        let h = 0;
+        for (const c of String(n || ""))
+          h = (h * 31 + c.charCodeAt(0)) & 0xffffffff;
+        return AC[Math.abs(h) % AC.length];
+      }
+      function emptyHTML(msg) {
+        return `<div class="empty-mini"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg><p>${msg}</p></div>`;
+      }
+      function btnLoad(id, loading, text) {
+        const b = document.getElementById(id);
+        b.disabled = loading;
+        if (loading)
+          b.innerHTML = `<svg style="animation:spin 0.7s linear infinite" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> ${text}`;
+      }
+      const s = document.createElement("style");
+      s.textContent = "@keyframes spin{to{transform:rotate(360deg);}}";
+      document.head.appendChild(s);
+    </script>
+  <script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+
+</html>

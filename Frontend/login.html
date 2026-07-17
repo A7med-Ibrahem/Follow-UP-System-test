@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SmartFollow Up | Sign In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg-main:#F8FAFC; --bg-card:#FFFFFF; --bg-input:#F1F5F9;
+  --text-main:#0F172A; --text-muted:#64748B;
+  --border:#E2E8F0; --primary:#2563EB; --primary-light:rgba(37,99,235,0.1);
+  --success:#10B981; --error:#EF4444;
+  --shadow:0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -1px rgba(0,0,0,0.06);
+  --transition:0.3s cubic-bezier(0.4,0,0.2,1);
+}
+[data-theme="dark"] {
+  --bg-main:#020617; --bg-card:#0F172A; --bg-input:#1E293B;
+  --text-main:#F8FAFC; --text-muted:#94A3B8;
+  --border:#1E293B; --primary:#3B82F6;
+  --shadow:0 4px 6px -1px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg-main);color:var(--text-main);min-height:100vh;display:flex;transition:background-color var(--transition),color var(--transition);}
+
+/* LEFT PANEL */
+.left-panel{
+  width:50%;background:var(--primary);display:flex;flex-direction:column;
+  justify-content:space-between;padding:48px;position:relative;overflow:hidden;
+}
+.left-panel::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#1d4ed8 0%,#2563EB 60%,#3b82f6 100%);}
+.deco{position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,0.1);}
+.deco-1{width:420px;height:420px;top:-120px;right:-120px;}
+.deco-2{width:260px;height:260px;bottom:60px;left:-80px;}
+.deco-3{width:140px;height:140px;top:42%;right:80px;background:rgba(255,255,255,0.04);}
+.left-top{position:relative;z-index:1;}
+.left-logo{display:flex;align-items:center;gap:10px;color:#fff;font-weight:700;font-size:22px;margin-bottom:72px;}
+.left-logo svg{width:28px;height:28px;}
+.mobile-logo{display:none;align-items:center;gap:8px;color:var(--primary);font-weight:700;font-size:19px;margin-bottom:24px;}
+.mobile-logo svg{width:24px;height:24px;}
+.left-headline h1{color:#fff;font-size:36px;font-weight:700;line-height:1.25;margin-bottom:14px;}
+.left-headline p{color:rgba(255,255,255,0.72);font-size:15px;line-height:1.65;max-width:360px;}
+.feature-list{position:relative;z-index:1;display:flex;flex-direction:column;gap:14px;}
+.feature-item{display:flex;align-items:center;gap:12px;color:rgba(255,255,255,0.88);}
+.feature-icon{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.14);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.feature-text{font-size:14px;font-weight:500;}
+
+/* RIGHT PANEL */
+.right-panel{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 40px;position:relative;overflow-y:auto;}
+.theme-toggle-wrap{position:absolute;top:24px;right:24px;}
+.theme-toggle{cursor:pointer;padding:8px;border-radius:10px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-main);transition:var(--transition);display:flex;align-items:center;justify-content:center;}
+.theme-toggle:hover{background:var(--bg-input);}
+
+.form-card{width:100%;max-width:420px;animation:fadeUp 0.5s cubic-bezier(0.34,1.2,0.64,1) both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+/* Role tabs */
+.role-tabs{display:flex;background:var(--bg-input);border-radius:12px;padding:4px;gap:4px;margin-bottom:28px;}
+.role-tab{flex:1;padding:9px 6px;border:none;background:none;border-radius:9px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--text-muted);cursor:pointer;transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:5px;}
+.role-tab svg{width:14px;height:14px;flex-shrink:0;}
+.role-tab.active{background:var(--bg-card);color:var(--primary);box-shadow:var(--shadow);}
+
+.form-header{margin-bottom:24px;}
+.form-header h2{font-size:24px;font-weight:700;margin-bottom:5px;}
+.form-header p{color:var(--text-muted);font-size:14px;}
+
+/* Inputs */
+.form-group{margin-bottom:16px;}
+.form-label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;}
+.input-wrap{position:relative;}
+.input-wrap .field-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;width:16px;height:16px;}
+.form-input{width:100%;padding:11px 14px 11px 40px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:11px;color:var(--text-main);font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:var(--transition);}
+.form-input:focus{border-color:var(--primary);box-shadow:0 0 0 4px var(--primary-light);background:var(--bg-card);}
+.form-input.has-error{border-color:var(--error);box-shadow:0 0 0 4px rgba(239,68,68,0.1);}
+.form-input::placeholder{color:var(--text-muted);}
+.toggle-pass{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);padding:2px;display:flex;transition:var(--transition);}
+.toggle-pass:hover{color:var(--text-main);}
+.field-error{font-size:12px;color:var(--error);margin-top:4px;display:none;}
+
+.forgot-link{display:block;text-align:right;font-size:13px;color:var(--primary);text-decoration:none;margin-top:-8px;margin-bottom:18px;font-weight:500;}
+.forgot-link:hover{text-decoration:underline;}
+
+/* Alert box */
+.alert-box{padding:12px 14px;border-radius:10px;font-size:13px;display:none;align-items:flex-start;gap:9px;margin-bottom:16px;border:1px solid;}
+.alert-box.show{display:flex;}
+.alert-box.error{background:rgba(239,68,68,0.07);border-color:rgba(239,68,68,0.22);color:#dc2626;}
+.alert-box.success{background:rgba(16,185,129,0.07);border-color:rgba(16,185,129,0.22);color:#059669;}
+.alert-box svg{flex-shrink:0;margin-top:1px;}
+
+/* Buttons */
+.btn-submit{width:100%;padding:12px;background:var(--primary);color:#fff;border:none;border-radius:11px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:var(--transition);}
+.btn-submit:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 20px -4px rgba(37,99,235,0.4);}
+.btn-submit:active{transform:translateY(0);}
+.btn-submit:disabled{opacity:0.7;cursor:not-allowed;transform:none !important;}
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--text-muted);font-size:13px;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.btn-outline{width:100%;padding:11px;background:var(--bg-card);color:var(--text-main);border:1.5px solid var(--border);border-radius:11px;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:var(--transition);}
+.btn-outline:hover{background:var(--bg-input);border-color:var(--primary);color:var(--primary);}
+.back-btn{background:none;border:none;cursor:pointer;color:var(--text-muted);font-family:'Inter',sans-serif;font-size:13px;font-weight:500;display:flex;align-items:center;gap:5px;padding:0;margin-bottom:20px;transition:var(--transition);}
+.back-btn:hover{color:var(--primary);}
+
+/* Steps */
+.steps{display:flex;align-items:center;gap:8px;margin-bottom:24px;}
+.step{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text-muted);transition:var(--transition);flex-shrink:0;}
+.step.active{border-color:var(--primary);background:var(--primary);color:#fff;}
+.step.done{border-color:var(--success);background:var(--success);color:#fff;}
+.step-line{flex:1;height:1.5px;background:var(--border);transition:background var(--transition);}
+.step-line.done{background:var(--success);}
+
+/* OTP */
+.otp-inputs{display:flex;gap:9px;justify-content:center;margin:20px 0;}
+.otp-input{width:50px;height:54px;text-align:center;font-size:20px;font-weight:700;background:var(--bg-input);border:1.5px solid var(--border);border-radius:11px;color:var(--text-main);font-family:'Inter',sans-serif;outline:none;transition:var(--transition);}
+.otp-input:focus{border-color:var(--primary);box-shadow:0 0 0 4px var(--primary-light);background:var(--bg-card);}
+.resend-row{text-align:center;font-size:13px;color:var(--text-muted);margin-top:10px;}
+.resend-btn{background:none;border:none;cursor:pointer;color:var(--primary);font-family:'Inter',sans-serif;font-size:13px;font-weight:600;padding:0;}
+.resend-btn:disabled{color:var(--text-muted);cursor:not-allowed;}
+
+/* Spinner */
+@keyframes spin{to{transform:rotate(360deg);}}
+.spinner{display:inline-block;animation:spin 0.7s linear infinite;}
+
+/* RESPONSIVE */
+@media(max-width:900px){.left-panel{display:none;}.right-panel{padding:40px 24px;}.mobile-logo{display:flex;}}
+@media(max-width:480px){.right-panel{padding:28px 16px;}.role-tab{font-size:12px;}.otp-input{width:42px;height:48px;font-size:18px;}.otp-inputs{gap:6px;}}
+</style>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#2563EB"/>
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="SmartFollow"/>
+</head>
+<body>
+
+<!-- LEFT PANEL -->
+<div class="left-panel">
+  <div class="deco deco-1"></div>
+  <div class="deco deco-2"></div>
+  <div class="deco deco-3"></div>
+  <div class="left-top">
+    <div class="left-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      SmartFollow
+    </div>
+    <div class="left-headline">
+      <h1>Post-operative care, reimagined.</h1>
+      <p>Monitor your patients in real-time, get AI-powered risk alerts, and take action faster than ever.</p>
+    </div>
+  </div>
+  <div class="feature-list">
+    <div class="feature-item">
+      <div class="feature-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+      <span class="feature-text">AI-powered risk scoring & instant critical alerts</span>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <span class="feature-text">Daily health reports with wound image tracking</span>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+      <span class="feature-text">Prescription management & medication adherence</span>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+      <span class="feature-text">Multi-role: Doctors, Patients & Admins</span>
+    </div>
+  </div>
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+  <div class="mobile-logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+    SmartFollow
+  </div>
+  <div class="theme-toggle-wrap">
+    <button class="theme-toggle" id="themeToggle">
+      <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+  </div>
+
+  <!-- ── LOGIN VIEW ── -->
+  <div class="form-card" id="loginView">
+    <div class="form-header">
+      <h2 id="formTitle">Welcome back</h2>
+      <p id="formSubtitle">Sign in to your account</p>
+    </div>
+
+    <div class="alert-box error" id="loginAlert"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span id="loginAlertMsg"></span></div>
+    <div class="alert-box success" id="loginSuccess"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span id="loginSuccessMsg"></span></div>
+
+    <div class="form-group">
+      <label class="form-label">Email address</label>
+      <div class="input-wrap">
+        <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <input type="email" class="form-input" id="loginEmail" placeholder="you@example.com" autocomplete="email"/>
+      </div>
+      <div class="field-error" id="loginEmailErr">Please enter a valid email.</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <div class="input-wrap">
+        <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <input type="password" class="form-input" id="loginPass" placeholder="••••••••" autocomplete="current-password"/>
+        <button class="toggle-pass" type="button" onclick="togglePass()">
+          <svg id="eyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <div class="field-error" id="loginPassErr">Password is required.</div>
+    </div>
+
+    <a href="#" class="forgot-link" onclick="showView('forgotView');return false;">Forgot password?</a>
+
+    <button class="btn-submit" id="loginBtn" onclick="doLogin()">
+      Sign In
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </button>
+
+    <div id="doctorExtra">
+      <div class="divider">or</div>
+      <button class="btn-outline" onclick="showView('requestView')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Request Doctor Account
+      </button>
+    </div>
+  </div>
+
+  <!-- ── FORGOT VIEW ── -->
+  <div class="form-card" id="forgotView" style="display:none">
+    <button class="back-btn" onclick="showView('loginView')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Sign In
+    </button>
+    <div class="steps">
+      <div class="step active" id="s1">1</div>
+      <div class="step-line" id="sl1"></div>
+      <div class="step" id="s2">2</div>
+      <div class="step-line" id="sl2"></div>
+      <div class="step" id="s3">3</div>
+    </div>
+
+    <!-- Step 1 -->
+    <div id="fStep1">
+      <div class="form-header"><h2>Forgot password?</h2><p>Enter your email to receive a 6-digit code.</p></div>
+      <div class="alert-box error" id="f1Alert"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span id="f1AlertMsg"></span></div>
+      <div class="form-group">
+        <label class="form-label">Email address</label>
+        <div class="input-wrap">
+          <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <input type="email" class="form-input" id="fEmail" placeholder="you@example.com"/>
+        </div>
+      </div>
+      <button class="btn-submit" id="sendOtpBtn" onclick="sendOtp()">
+        Send Code
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+
+    <!-- Step 2 -->
+    <div id="fStep2" style="display:none">
+      <div class="form-header"><h2>Enter the code</h2><p id="otpSentTo">Check your email for the 6-digit code.</p></div>
+      <div class="alert-box error" id="f2Alert"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span id="f2AlertMsg"></span></div>
+      <div class="otp-inputs">
+        <input class="otp-input" maxlength="1" inputmode="numeric" id="o0"/>
+        <input class="otp-input" maxlength="1" inputmode="numeric" id="o1"/>
+        <input class="otp-input" maxlength="1" inputmode="numeric" id="o2"/>
+        <input class="otp-input" maxlength="1" inputmode="numeric" id="o3"/>
+        <input class="otp-input" maxlength="1" inputmode="numeric" id="o4"/>
+        <input class="otp-input" maxlength="1" inputmode="numeric" id="o5"/>
+      </div>
+      <div class="resend-row">Didn't receive it? <button class="resend-btn" id="resendBtn" onclick="resendOtp()">Resend</button><span id="resendTimerEl" style="display:none"> in <span id="timerSecs">60</span>s</span></div>
+      <button class="btn-submit" id="verifyOtpBtn" style="margin-top:20px" onclick="verifyOtp()">
+        Verify Code
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Step 3 -->
+    <div id="fStep3" style="display:none">
+      <div class="form-header"><h2>Set new password</h2><p>Choose a strong password.</p></div>
+      <div class="alert-box error" id="f3Alert"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span id="f3AlertMsg"></span></div>
+      <div class="form-group">
+        <label class="form-label">New Password</label>
+        <div class="input-wrap">
+          <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" class="form-input" id="newPass" placeholder="Min. 8 characters"/>
+        </div>
+        <div class="field-error" id="newPassErr">At least 8 characters required.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        <div class="input-wrap">
+          <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" class="form-input" id="confirmPass" placeholder="Repeat password"/>
+        </div>
+        <div class="field-error" id="confirmPassErr">Passwords do not match.</div>
+      </div>
+      <button class="btn-submit" id="resetBtn" onclick="resetPass()">
+        Reset Password
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── REQUEST DOCTOR VIEW ── -->
+  <div class="form-card" id="requestView" style="display:none">
+    <button class="back-btn" onclick="showView('loginView')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Sign In
+    </button>
+    <div class="form-header"><h2>Request Doctor Account</h2><p>Fill in your details. Admin will review and approve.</p></div>
+    <div class="alert-box error" id="reqAlert"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span id="reqAlertMsg"></span></div>
+    <div class="alert-box success" id="reqSuccess"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>Request submitted! You'll receive an email once approved.</span></div>
+    <div class="form-group">
+      <label class="form-label">Full Name</label>
+      <div class="input-wrap">
+        <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+        <input type="text" class="form-input" id="rName" placeholder="Dr. Ahmed Mohamed"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <div class="input-wrap">
+        <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <input type="email" class="form-input" id="rEmail" placeholder="doctor@hospital.com"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Specialty</label>
+      <div class="input-wrap">
+        <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <input type="text" class="form-input" id="rSpec" placeholder="e.g. General Surgery"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">License Number</label>
+      <div class="input-wrap">
+        <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        <input type="text" class="form-input" id="rLicense" placeholder="e.g. EG-2024-XXXXX"/>
+      </div>
+    </div>
+    <button class="btn-submit" id="reqBtn" onclick="submitRequest()">
+      Submit Request
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:5290/api';
+let savedEmail = '';
+let savedOtp = '';
+let resendTimer = null;
+
+// INIT
+window.addEventListener('DOMContentLoaded', () => {
+  const token = localStorage.getItem('token');
+  const role = localStorage.getItem('userRole');
+  if (token && role) {
+      const map = {
+          Doctor: '/Front doctor-dashboard.html',
+          Patient: 'patient-dashboard.html',
+          Admin: 'admin-dashboard.html'
+      };
+      window.location.href = map[role] || 'login.html';
+      return;
+  }
+  initTheme();
+  // Enter key on login
+  document.getElementById('loginPass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+  document.getElementById('loginEmail').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('loginPass').focus(); });
+  // OTP navigation
+  for (let i = 0; i < 6; i++) {
+    const inp = document.getElementById(`o${i}`);
+    inp.addEventListener('input', () => {
+      inp.value = inp.value.replace(/\D/g,'').slice(-1);
+      if (inp.value && i < 5) document.getElementById(`o${i+1}`).focus();
+    });
+    inp.addEventListener('keydown', e => {
+      if (e.key==='Backspace' && !inp.value && i > 0) document.getElementById(`o${i-1}`).focus();
+    });
+    inp.addEventListener('paste', e => {
+      e.preventDefault();
+      const txt = (e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'');
+      for (let j=0;j<6&&j<txt.length;j++) document.getElementById(`o${j}`).value = txt[j];
+      document.getElementById(`o${Math.min(txt.length,5)}`).focus();
+    });
+  }
+});
+
+// THEME
+function initTheme() {
+  const t = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', t);
+  updateThemeIcon(t);
+}
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  updateThemeIcon(next);
+});
+function updateThemeIcon(t) {
+  document.getElementById('themeIcon').innerHTML = t === 'dark'
+    ? `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`
+    : `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+}
+
+// VIEWS
+function showView(id) {
+  ['loginView','forgotView','requestView'].forEach(v => {
+    document.getElementById(v).style.display = v === id ? '' : 'none';
+  });
+  const el = document.getElementById(id);
+  el.style.animation = 'none';
+  requestAnimationFrame(() => el.style.animation = 'fadeUp 0.4s cubic-bezier(0.34,1.2,0.64,1) both');
+}
+
+
+// LOGIN
+async function doLogin() {
+  hideAlert('loginAlert'); hideAlert('loginSuccess');
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  let ok = true;
+  if (!email || !/\S+@\S+\.\S+/.test(email)) { fieldErr('loginEmail','loginEmailErr',true); ok=false; } else fieldErr('loginEmail','loginEmailErr',false);
+  if (!pass) { fieldErr('loginPass','loginPassErr',true); ok=false; } else fieldErr('loginPass','loginPassErr',false);
+  if (!ok) return;
+  btnLoading('loginBtn', true, 'Signing in...');
+  try {
+    const res = await fetch(`${API}/Auth/login`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email, password: pass })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { showAlert('loginAlert','loginAlertMsg', data.message || data.title || 'Invalid email or password.'); btnLoading('loginBtn',false,'Sign In'); return; }
+    const r = data.role || parseRole(data.token || data.accessToken);
+    localStorage.setItem('token', data.token || data.accessToken || '');
+    if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
+    localStorage.setItem('userRole', r);
+    localStorage.setItem('mustChangePassword', data.mustChangePassword ? '1' : '0');
+    redirect(r);
+  } catch {
+    showAlert('loginAlert','loginAlertMsg','Cannot connect to server. Please try again.');
+    btnLoading('loginBtn',false,'Sign In');
+  }
+}
+
+function redirect(r) {
+  const map = { Doctor:'/Frontend/doctor-dashboard.html', Patient:'/Frontend/patient-dashboard.html', Admin:'/Frontend/admin-dashboard.html' };
+  window.location.href = map[r] || '/Frontend/doctor-dashboard.html';
+}
+
+function parseRole(token) {
+  try {
+    const p = JSON.parse(atob(token.split('.')[1]));
+    return p.role || p['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || 'Doctor';
+  } catch { return 'Doctor'; }
+}
+
+// PASSWORD TOGGLE
+function togglePass() {
+  const inp = document.getElementById('loginPass');
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  document.getElementById('eyeIcon').innerHTML = show
+    ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`
+    : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+}
+
+// FORGOT PASSWORD
+async function sendOtp() {
+  hideAlert('f1Alert');
+  const email = document.getElementById('fEmail').value.trim();
+  if (!email || !/\S+@\S+\.\S+/.test(email)) { document.getElementById('fEmail').classList.add('has-error'); return; }
+  document.getElementById('fEmail').classList.remove('has-error');
+  btnLoading('sendOtpBtn', true, 'Sending...');
+  try {
+    const res = await fetch(`${API}/Auth/forgot-password`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email })
+    });
+    if (!res.ok) {
+      const d = await res.json().catch(()=>({}));
+      showAlert('f1Alert','f1AlertMsg', d.message || (res.status===429 ? 'Too many attempts. Please wait a few minutes.' : 'Something went wrong. Please try again.'));
+      btnLoading('sendOtpBtn',false,'Send Code');
+      return;
+    }
+    savedEmail = email;
+    document.getElementById('otpSentTo').textContent = `Code sent to ${email}`;
+    document.getElementById('fStep1').style.display = 'none';
+    document.getElementById('fStep2').style.display = '';
+    setStep(2);
+    startResend();
+    document.getElementById('o0').focus();
+  } catch {
+    showAlert('f1Alert','f1AlertMsg','Network error. Please try again.');
+    btnLoading('sendOtpBtn',false,'Send Code');
+  }
+}
+
+async function verifyOtp() {
+  hideAlert('f2Alert');
+  const code = Array.from({length:6},(_,i)=>document.getElementById(`o${i}`).value).join('');
+  if (code.length < 6) { showAlert('f2Alert','f2AlertMsg','Enter the full 6-digit code.'); return; }
+
+  const btn = document.getElementById('verifyOtpBtn');
+  if (btn) btnLoading('verifyOtpBtn', true, 'Verifying...');
+  try {
+    const res = await fetch(`${API}/Auth/verify-otp`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email: savedEmail, token: code })
+    });
+    if (!res.ok) {
+      const d = await res.json().catch(()=>({}));
+      showAlert('f2Alert','f2AlertMsg', d.message || (res.status===429 ? 'Too many attempts. Please wait a few minutes.' : 'Invalid or expired code.'));
+      if (btn) btnLoading('verifyOtpBtn', false, 'Verify Code');
+      return;
+    }
+  } catch {
+    showAlert('f2Alert','f2AlertMsg','Network error. Please try again.');
+    if (btn) btnLoading('verifyOtpBtn', false, 'Verify Code');
+    return;
+  }
+  if (btn) btnLoading('verifyOtpBtn', false, 'Verify Code');
+
+  savedOtp = code;
+  document.getElementById('fStep2').style.display = 'none';
+  document.getElementById('fStep3').style.display = '';
+  setStep(3);
+}
+
+async function resetPass() {
+  hideAlert('f3Alert');
+  const np = document.getElementById('newPass').value;
+  const cp = document.getElementById('confirmPass').value;
+  let ok = true;
+  if (!np || np.length < 8) { document.getElementById('newPassErr').style.display='block'; ok=false; } else document.getElementById('newPassErr').style.display='none';
+  if (np !== cp) { document.getElementById('confirmPassErr').style.display='block'; ok=false; } else document.getElementById('confirmPassErr').style.display='none';
+  if (!ok) return;
+  btnLoading('resetBtn', true, 'Resetting...');
+  try {
+    const res = await fetch(`${API}/Auth/reset-password`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email: savedEmail, token: savedOtp, newPassword: np })
+    });
+    if (!res.ok) {
+      const d = await res.json().catch(()=>({}));
+      showAlert('f3Alert','f3AlertMsg', d.message || 'Invalid or expired code.');
+      btnLoading('resetBtn',false,'Reset Password');
+      return;
+    }
+    // Success → back to login
+    btnLoading('resetBtn', false, 'Reset Password');
+    showView('loginView');
+    document.getElementById('loginEmail').value = savedEmail;
+    showSuccessMsg('loginSuccess','loginSuccessMsg','Password reset successfully! Please sign in.');
+    resetForgot();
+  } catch {
+    showAlert('f3Alert','f3AlertMsg','Network error. Please try again.');
+    btnLoading('resetBtn',false,'Reset Password');
+  }
+}
+
+async function resendOtp() { await sendOtp(); startResend(); }
+
+function startResend() {
+  let s = 60;
+  const btn = document.getElementById('resendBtn');
+  const timerEl = document.getElementById('resendTimerEl');
+  const secsEl = document.getElementById('timerSecs');
+  btn.disabled = true; timerEl.style.display = '';
+  secsEl.textContent = s;
+  clearInterval(resendTimer);
+  resendTimer = setInterval(() => {
+    s--; secsEl.textContent = s;
+    if (s <= 0) { clearInterval(resendTimer); btn.disabled = false; timerEl.style.display = 'none'; }
+  }, 1000);
+}
+
+function setStep(n) {
+  for (let i=1;i<=3;i++) {
+    const el = document.getElementById(`s${i}`);
+    if (i < n) { el.className='step done'; el.innerHTML=`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`; }
+    else if (i===n) { el.className='step active'; el.textContent=i; }
+    else { el.className='step'; el.textContent=i; }
+  }
+  document.getElementById('sl1').className = 'step-line' + (n>1?' done':'');
+  document.getElementById('sl2').className = 'step-line' + (n>2?' done':'');
+}
+
+function resetForgot() {
+  ['fStep1','fStep2','fStep3'].forEach((id,i) => document.getElementById(id).style.display = i===0?'':'none');
+  for (let i=0;i<6;i++) document.getElementById(`o${i}`).value='';
+  document.getElementById('fEmail').value = '';
+  setStep(1); clearInterval(resendTimer);
+  document.getElementById('resendBtn').disabled = false;
+  document.getElementById('resendTimerEl').style.display = 'none';
+  btnLoading('sendOtpBtn',false,'Send Code');
+}
+
+// DOCTOR REQUEST
+async function submitRequest() {
+  hideAlert('reqAlert'); hideAlert('reqSuccess');
+  const name    = document.getElementById('rName').value.trim();
+  const email   = document.getElementById('rEmail').value.trim();
+  const spec    = document.getElementById('rSpec').value.trim();
+  const license = document.getElementById('rLicense').value.trim();
+  if (!name||!email||!spec||!license) { showAlert('reqAlert','reqAlertMsg','Please fill in all fields.'); return; }
+  btnLoading('reqBtn', true, 'Submitting...');
+  try {
+    const res = await fetch(`${API}/Auth/request-doctor`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ name, email, specialty:spec, licenseNumber:license })
+    });
+    if (!res.ok) {
+      const d = await res.json().catch(()=>({}));
+      showAlert('reqAlert','reqAlertMsg', d.message||d.title||'Failed to submit.');
+    } else {
+      showSuccessMsg('reqSuccess', null, null);
+      ['rName','rEmail','rSpec','rLicense'].forEach(id => document.getElementById(id).value='');
+    }
+  } catch { showAlert('reqAlert','reqAlertMsg','Network error.'); }
+  finally { btnLoading('reqBtn',false,'Submit Request'); }
+}
+
+// HELPERS
+function showAlert(boxId, msgId, msg) {
+  const el = document.getElementById(boxId); el.className='alert-box error show';
+  if(msgId) document.getElementById(msgId).textContent = msg;
+}
+function showSuccessMsg(boxId, msgId, msg) {
+  const el = document.getElementById(boxId); el.className='alert-box success show';
+  if(msgId && msg) document.getElementById(msgId).textContent = msg;
+}
+function hideAlert(id) { document.getElementById(id).classList.remove('show'); }
+function fieldErr(inputId, errId, show) {
+  document.getElementById(inputId).classList.toggle('has-error', show);
+  document.getElementById(errId).style.display = show ? 'block' : 'none';
+}
+function btnLoading(id, loading, text) {
+  const btn = document.getElementById(id);
+  btn.disabled = loading;
+  if (loading) {
+    if (!btn.dataset.originalHtml) btn.dataset.originalHtml = btn.innerHTML;
+    btn.innerHTML = `<svg class="spinner" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> ${text}`;
+  } else {
+    btn.innerHTML = text || btn.dataset.originalHtml || btn.innerHTML;
+  }
+}
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>⚠️ Critical Patient Alert</title></head>
+<body style="margin:0;padding:0;background-color:#F8FAFC;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;padding:40px 20px;">
+  <tr><td align="center">
+    <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+      <!-- HEADER -->
+      <tr><td style="background:linear-gradient(135deg,#7f1d1d 0%,#dc2626 60%,#ef4444 100%);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
+        <div style="font-size:48px;margin-bottom:12px;">🚨</div>
+        <h1 style="color:#ffffff;font-size:24px;font-weight:700;margin:0 0 8px;">Critical Patient Alert</h1>
+        <p style="color:rgba(255,255,255,0.85);font-size:15px;margin:0;">Immediate attention required</p>
+      </td></tr>
+
+      <!-- BODY -->
+      <tr><td style="background:#ffffff;padding:36px 40px;">
+        <p style="font-size:15px;color:#374151;line-height:1.7;margin:0 0 20px;">Dear Dr. <strong>{{DOCTOR_NAME}}</strong>,</p>
+        <p style="font-size:15px;color:#374151;line-height:1.7;margin:0 0 24px;">Your patient <strong>{{PATIENT_NAME}}</strong> has submitted a daily report with critical health indicators. Please review and take immediate action.</p>
+
+        <!-- PATIENT INFO -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="background:#FEF2F2;border:1px solid #FECACA;border-radius:12px;margin-bottom:20px;">
+          <tr><td style="padding:20px 24px;">
+            <p style="font-size:13px;font-weight:700;color:#991B1B;text-transform:uppercase;letter-spacing:.5px;margin:0 0 14px;">Patient Information</p>
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="padding:5px 0;font-size:14px;color:#64748B;width:140px;">Patient Name</td>
+                <td style="padding:5px 0;font-size:14px;font-weight:600;color:#0F172A;">{{PATIENT_NAME}}</td>
+              </tr>
+              <tr>
+                <td style="padding:5px 0;font-size:14px;color:#64748B;">Case ID</td>
+                <td style="padding:5px 0;font-size:14px;font-weight:600;color:#0F172A;">#{{CASE_ID}}</td>
+              </tr>
+              <tr>
+                <td style="padding:5px 0;font-size:14px;color:#64748B;">Operation</td>
+                <td style="padding:5px 0;font-size:14px;font-weight:600;color:#0F172A;">{{OPERATION_TYPE}}</td>
+              </tr>
+              <tr>
+                <td style="padding:5px 0;font-size:14px;color:#64748B;">Report Time</td>
+                <td style="padding:5px 0;font-size:14px;font-weight:600;color:#0F172A;">{{REPORT_TIME}}</td>
+              </tr>
+            </table>
+          </td></tr>
+        </table>
+
+        <!-- VITALS -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
+          <tr>
+            <td width="48%" style="padding-right:8px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#FEF2F2;border-radius:10px;">
+                <tr><td style="padding:16px;text-align:center;">
+                  <div style="font-size:11px;font-weight:700;color:#991B1B;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Temperature</div>
+                  <div style="font-size:28px;font-weight:700;color:#DC2626;">{{TEMPERATURE}}°C</div>
+                </td></tr>
+              </table>
+            </td>
+            <td width="4%"></td>
+            <td width="48%">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#FEF2F2;border-radius:10px;">
+                <tr><td style="padding:16px;text-align:center;">
+                  <div style="font-size:11px;font-weight:700;color:#991B1B;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Pain Level</div>
+                  <div style="font-size:28px;font-weight:700;color:#DC2626;">{{PAIN_LEVEL}}<span style="font-size:16px;font-weight:400;">/10</span></div>
+                </td></tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+
+        <!-- SYMPTOMS -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:10px;margin-bottom:24px;">
+          <tr><td style="padding:14px 18px;">
+            <p style="font-size:13px;font-weight:700;color:#9A3412;margin:0 0 8px;">Reported Symptoms</p>
+            <p style="font-size:14px;color:#374151;margin:0;">{{SYMPTOMS}}</p>
+          </td></tr>
+        </table>
+
+        <!-- RISK SCORE -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="background:#FEF2F2;border-radius:10px;margin-bottom:28px;">
+          <tr><td style="padding:16px 20px;text-align:center;">
+            <div style="font-size:13px;font-weight:700;color:#991B1B;margin-bottom:6px;">AI RISK SCORE</div>
+            <div style="font-size:40px;font-weight:700;color:#DC2626;">{{RISK_SCORE}}<span style="font-size:18px;font-weight:400;color:#94A3B8;">/100</span></div>
+            <div style="background:#FECACA;border-radius:99px;height:8px;margin-top:10px;overflow:hidden;">
+              <div style="background:#DC2626;height:100%;width:{{RISK_SCORE}}%;border-radius:99px;"></div>
+            </div>
+          </td></tr>
+        </table>
+
+        <!-- CTA -->
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr><td align="center">
+            <a href="{{CASE_URL}}" style="background:#DC2626;color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;padding:14px 36px;border-radius:10px;display:inline-block;">View Patient Case →</a>
+          </td></tr>
+        </table>
+      </td></tr>
+
+      <!-- FOOTER -->
+      <tr><td style="background:#F8FAFC;border-top:1px solid #E2E8F0;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;">
+        <p style="font-size:12px;color:#94A3B8;margin:0 0 6px;">This is an automated alert from SmartFollow Up monitoring system.</p>
+        <p style="font-size:12px;color:#94A3B8;margin:0;">© 2026 SmartFollow Up. All rights reserved.</p>
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>

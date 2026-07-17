@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SmartFollow Up | Prescriptions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg-main:#F8FAFC; --bg-card:#FFFFFF; --bg-sidebar:#FFFFFF;
+  --bg-input:#F1F5F9; --text-main:#0F172A; --text-muted:#64748B;
+  --border:#E2E8F0; --primary:#2563EB; --primary-light:rgba(37,99,235,0.1);
+  --success:#10B981; --warning:#F59E0B; --error:#EF4444;
+  --shadow:0 4px 6px -1px rgba(0,0,0,0.07),0 2px 4px -1px rgba(0,0,0,0.04);
+  --sidebar-width:260px; --transition:0.3s cubic-bezier(0.4,0,0.2,1);
+}
+[data-theme="dark"] {
+  --bg-main:#020617; --bg-card:#0F172A; --bg-sidebar:#0F172A;
+  --bg-input:#1E293B; --text-main:#F8FAFC; --text-muted:#94A3B8;
+  --border:#1E293B; --primary:#3B82F6;
+  --shadow:0 4px 6px -1px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg-main);color:var(--text-main);display:flex;height:100vh;overflow:hidden;transition:background-color var(--transition),color var(--transition);}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+
+/* ── SIDEBAR ── */
+aside{width:var(--sidebar-width);background:var(--bg-sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px;z-index:100;flex-shrink:0;transition:var(--transition);}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;color:var(--primary);margin-bottom:40px;text-decoration:none;}
+.logo svg{width:26px;height:26px;flex-shrink:0;}
+.nav-group{display:flex;flex-direction:column;gap:4px;flex:1;}
+.nav-link{display:flex;align-items:center;gap:12px;padding:11px 12px;text-decoration:none;color:var(--text-muted);font-weight:500;border-radius:10px;transition:var(--transition);font-size:14px;white-space:nowrap;}
+.nav-link:hover,.nav-link.active{background:var(--primary-light);color:var(--primary);}
+.nav-link svg{width:18px;height:18px;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--error);color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;}
+.nav-bottom{margin-top:auto;display:flex;flex-direction:column;gap:4px;}
+
+/* ── MAIN ── */
+main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+header{height:68px;background:var(--bg-card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0;gap:12px;}
+.mobile-menu-btn{display:none;background:none;border:none;cursor:pointer;color:var(--text-main);padding:6px;border-radius:8px;}
+.search-bar{position:relative;flex:1;max-width:320px;}
+.search-bar input{width:100%;padding:9px 14px 9px 38px;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;color:var(--text-main);font-family:'Inter',sans-serif;font-size:13px;outline:none;transition:var(--transition);}
+.search-bar input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light);}
+.search-bar input::placeholder{color:var(--text-muted);}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;}
+.header-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.theme-toggle{cursor:pointer;padding:7px;border-radius:9px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-main);transition:var(--transition);display:flex;align-items:center;}
+.theme-toggle:hover{background:var(--bg-input);}
+.avatar{width:34px;height:34px;border-radius:50%;border:2px solid var(--primary);}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;padding:24px 28px;}
+.page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;gap:16px;flex-wrap:wrap;}
+.page-title h1{font-size:22px;font-weight:700;}
+.page-title p{color:var(--text-muted);font-size:14px;margin-top:4px;}
+
+/* ── BUTTONS ── */
+.btn-primary{background:var(--primary);color:#fff;border:none;padding:10px 18px;border-radius:10px;font-weight:600;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:7px;transition:var(--transition);font-family:'Inter',sans-serif;white-space:nowrap;}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 15px -3px rgba(37,99,235,0.4);}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none!important;}
+.btn-secondary{background:var(--bg-card);color:var(--text-main);border:1px solid var(--border);padding:9px 16px;border-radius:10px;font-weight:500;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:7px;transition:var(--transition);font-family:'Inter',sans-serif;}
+.btn-secondary:hover{background:var(--bg-input);}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:8px;}
+.btn-icon-sm{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transition);}
+.btn-icon-sm:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-light);}
+.btn-icon-sm.danger:hover{border-color:var(--error);color:var(--error);background:rgba(239,68,68,0.1);}
+
+/* ── STATS ── */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;}
+.stat-card{background:var(--bg-card);padding:18px 20px;border-radius:14px;border:1px solid var(--border);box-shadow:var(--shadow);display:flex;align-items:center;gap:14px;animation:fadeInUp .4s both;}
+.stat-card:nth-child(2){animation-delay:.07s;}.stat-card:nth-child(3){animation-delay:.14s;}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.stat-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.stat-icon.blue{background:var(--primary-light);color:var(--primary);}
+.stat-icon.green{background:rgba(16,185,129,0.1);color:var(--success);}
+.stat-icon.yellow{background:rgba(245,158,11,0.1);color:var(--warning);}
+.stat-value{font-size:24px;font-weight:700;line-height:1;}
+.stat-label{font-size:12px;color:var(--text-muted);margin-top:3px;}
+
+/* ── SEARCH + FILTER ── */
+.toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap;}
+
+/* ── RX CARDS GRID ── */
+.rx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:18px;}
+
+/* ── RX CARD ── */
+.rx-card{background:var(--bg-card);border-radius:18px;border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden;transition:var(--transition);animation:fadeInUp .4s both;}
+.rx-card:hover{box-shadow:0 8px 24px -4px rgba(0,0,0,0.1);transform:translateY(-2px);}
+.rx-card-header{padding:18px 20px;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--border);}
+.rx-patient-info{display:flex;align-items:center;gap:10px;}
+.rx-avatar{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;}
+.rx-patient-name{font-size:14px;font-weight:700;}
+.rx-patient-sub{font-size:12px;color:var(--text-muted);margin-top:2px;}
+.rx-header-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
+.rx-date{font-size:11px;color:var(--text-muted);}
+.rx-actions{display:flex;gap:6px;}
+
+/* ── RX BODY ── */
+.rx-card-body{padding:16px 20px;}
+.rx-instructions{font-size:13px;color:var(--text-muted);line-height:1.55;margin-bottom:14px;padding:10px 12px;background:var(--bg-input);border-radius:8px;border-left:3px solid var(--primary);}
+.rx-meds-title{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;}
+.rx-med-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.rx-med-item:last-child{border-bottom:none;padding-bottom:0;}
+.rx-med-dot{width:8px;height:8px;border-radius:50%;background:var(--primary);flex-shrink:0;margin-top:4px;}
+.rx-med-name{font-size:13px;font-weight:600;margin-bottom:3px;}
+.rx-med-details{display:flex;gap:8px;flex-wrap:wrap;}
+.rx-med-tag{font-size:11px;color:var(--text-muted);background:var(--bg-input);padding:2px 8px;border-radius:5px;}
+
+/* ── ADHERENCE ── */
+.rx-card-footer{padding:12px 20px;background:var(--bg-input);display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.adherence-label{font-size:12px;color:var(--text-muted);}
+.adherence-bar-wrap{flex:1;max-width:120px;}
+.adherence-bar-bg{height:6px;background:var(--border);border-radius:99px;overflow:hidden;}
+.adherence-bar-fill{height:100%;background:var(--success);border-radius:99px;}
+.adherence-pct{font-size:12px;font-weight:700;color:var(--success);}
+
+/* ── SKELETON ── */
+.skeleton{background:linear-gradient(90deg,var(--bg-input) 25%,var(--border) 50%,var(--bg-input) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:6px;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+.skeleton-card{background:var(--bg-card);border-radius:18px;border:1px solid var(--border);padding:20px;height:220px;}
+
+/* ── EMPTY ── */
+.empty-state{grid-column:1/-1;padding:60px;text-align:center;background:var(--bg-card);border-radius:18px;border:1px solid var(--border);}
+.empty-state svg{width:48px;height:48px;color:var(--text-muted);margin-bottom:12px;}
+.empty-state h3{font-size:15px;font-weight:600;margin-bottom:5px;}
+.empty-state p{font-size:13px;color:var(--text-muted);}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg-card);border-radius:20px;border:1px solid var(--border);width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);animation:modalIn .3s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes modalIn{from{opacity:0;transform:scale(0.93) translateY(16px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.modal-header{padding:22px 24px 0;display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+.modal-title{font-size:17px;font-weight:700;}
+.modal-close{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transition);}
+.modal-close:hover{background:var(--bg-input);}
+.modal-body{padding:0 24px;}
+.modal-footer{padding:18px 24px;display:flex;gap:8px;justify-content:flex-end;}
+.form-group{margin-bottom:15px;}
+.form-label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;}
+.form-label span{color:var(--error);}
+.form-input,.form-select,.form-textarea{width:100%;padding:10px 13px;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;color:var(--text-main);font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:var(--transition);}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light);background:var(--bg-card);}
+.form-textarea{resize:vertical;min-height:80px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.alert-box{padding:11px 14px;border-radius:10px;font-size:13px;display:none;align-items:flex-start;gap:9px;margin-bottom:14px;border:1px solid;}
+.alert-box.show{display:flex;}
+.alert-box.error{background:rgba(239,68,68,0.07);border-color:rgba(239,68,68,0.22);color:#dc2626;}
+
+/* ── MED ROW ── */
+.med-row{background:var(--bg-input);border-radius:10px;padding:12px;margin-bottom:10px;}
+.med-row-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.med-row-title{font-size:12px;font-weight:700;color:var(--text-muted);}
+.remove-med-btn{background:none;border:none;cursor:pointer;color:var(--error);font-size:18px;line-height:1;padding:0;}
+
+/* ── CASE SELECT ── */
+.case-select-item{padding:10px 14px;border-radius:8px;cursor:pointer;transition:var(--transition);display:flex;align-items:center;gap:10px;border:1px solid var(--border);margin-bottom:8px;}
+.case-select-item:hover,.case-select-item.selected{background:var(--primary-light);border-color:var(--primary);}
+.case-select-item.selected .case-select-name{color:var(--primary);}
+.case-select-name{font-size:13px;font-weight:600;}
+.case-select-sub{font-size:11px;color:var(--text-muted);}
+
+/* ── TOAST ── */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:300;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--bg-card);border:1px solid var(--border);padding:12px 16px;border-radius:12px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;min-width:260px;transform:translateX(120%);transition:transform 0.4s cubic-bezier(0.68,-0.55,0.265,1.55);}
+.toast.show{transform:translateX(0);}
+.toast.success{border-left:3px solid var(--success);}
+.toast.error{border-left:3px solid var(--error);}
+.toast-msg{flex:1;font-size:13px;font-weight:500;}
+.toast-x{background:none;border:none;cursor:pointer;color:var(--text-muted);}
+
+/* ── RESPONSIVE ── */
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99;}
+@media(max-width:1024px){aside{width:72px;padding:20px 10px;}.logo span,.nav-link span{display:none;}.logo{justify-content:center;}.nav-link{justify-content:center;}.nav-badge{display:none;}}
+@media(max-width:768px){
+  aside{position:fixed;left:-100%;top:0;height:100%;width:250px;padding:24px;transition:left var(--transition);z-index:200;}
+  aside.open{left:0;}.logo span,.nav-link span{display:flex;}.nav-link{justify-content:flex-start;}.nav-badge{display:flex;}
+  .mobile-menu-btn{display:flex;}.sidebar-overlay.open{display:block;}
+  .content{padding:16px;}.stats-row{grid-template-columns:1fr;}
+  .rx-grid{grid-template-columns:1fr;}
+}
+@media(max-width:480px){.search-bar{display:none;}.form-row{grid-template-columns:1fr;}.modal-footer{flex-direction:column;}}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#2563EB"/>
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="SmartFollow"/>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <a href="doctor-dashboard.html" class="logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+    <span>SmartFollow</span>
+  </a>
+  <nav class="nav-group">
+    <a href="doctor-dashboard.html" class="nav-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Dashboard</span>
+    </a>
+    <a href="doctor-dashboard.html" class="nav-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      <span>All Cases</span>
+    </a>
+    <a href="alerts.html" class="nav-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span>Alerts</span>
+      <span class="nav-badge" id="alertsBadge" style="display:none">0</span>
+    </a>
+    <a href="reports.html" class="nav-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span>Reports</span>
+    </a>
+    <a href="prescriptions.html" class="nav-link active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <span>Prescriptions</span>
+    </a>
+  </nav>
+  <div class="nav-bottom">
+    <a href="login.html" class="nav-link" onclick="logout(event)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      <span>Logout</span>
+    </a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main>
+  <header>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="search-bar">
+        <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search by patient name..." id="searchInput" oninput="debounceSearch(this.value)"/>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="theme-toggle" id="themeToggle">
+        <svg id="themeIcon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <img src="" class="avatar" id="userAvatar" alt="Doctor"/>
+    </div>
+  </header>
+
+  <div class="content">
+    <div class="page-header">
+      <div class="page-title">
+        <h1>Prescriptions</h1>
+        <p>Manage all patient prescriptions across your cases.</p>
+      </div>
+      <button class="btn-primary" onclick="openNewRxModal()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Prescription
+      </button>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+        <div><div class="stat-value" id="statTotal">—</div><div class="stat-label">Total Prescriptions</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+        <div><div class="stat-value" id="statPatients">—</div><div class="stat-label">Patients</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon yellow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div><div class="stat-value" id="statMeds">—</div><div class="stat-label">Total Medications</div></div>
+      </div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <span style="font-size:14px;font-weight:600" id="resultsLabel">Loading...</span>
+      <button class="btn-secondary" onclick="loadAllPrescriptions()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Refresh
+      </button>
+    </div>
+
+    <!-- GRID -->
+    <div class="rx-grid" id="rxGrid"></div>
+  </div>
+</main>
+
+<!-- NEW PRESCRIPTION MODAL -->
+<div class="modal-overlay" id="newRxModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="rxModalTitle">New Prescription</span>
+      <button class="modal-close" onclick="closeModal('newRxModal')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="alert-box error" id="rxError"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/></svg><span id="rxErrorMsg"></span></div>
+
+      <!-- Step 1: Select Case -->
+      <div id="step1">
+        <div class="form-group">
+          <label class="form-label">Select Patient Case <span>*</span></label>
+          <div id="casesList"><div class="skeleton" style="height:80px;border-radius:10px"></div></div>
+        </div>
+      </div>
+
+      <!-- Step 2: Prescription Details -->
+      <div id="step2" style="display:none">
+        <div style="background:var(--primary-light);border-radius:10px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+          <div style="font-size:13px;font-weight:600;color:var(--primary)" id="selectedCaseLabel">Patient Name</div>
+          <button onclick="backToStep1()" style="margin-left:auto;font-size:12px;color:var(--primary);background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600">Change</button>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Instructions</label>
+          <textarea class="form-textarea" id="rxInstructions" placeholder="General instructions for this prescription..."></textarea>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <label class="form-label" style="margin:0">Medications <span>*</span></label>
+          <button class="btn-secondary btn-sm" onclick="addMedRow()">+ Add Medication</button>
+        </div>
+        <div id="medsContainer"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('newRxModal')">Cancel</button>
+      <button class="btn-primary" id="rxSaveBtn" onclick="saveRx()" style="display:none">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/></svg>
+        Save Prescription
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+const API = 'http://localhost:5290/api';
+let allPrescriptions = [];
+let filteredPrescriptions = [];
+let allCases = [];
+let selectedCaseId = null;
+let medCount = 0;
+let editingRxId = null;
+let searchTimer = null;
+
+// ── INIT ──
+window.addEventListener('DOMContentLoaded', () => {
+  const token = localStorage.getItem('token');
+  const role  = localStorage.getItem('userRole');
+  if (!token || !role) { location.href = 'login.html'; return; }
+  if (role !== 'Doctor') { localStorage.clear(); location.href = 'login.html'; return; }
+  initTheme();
+  loadUserAvatar();
+  loadAlertCount();
+  loadAllPrescriptions();
+});
+
+// ── AUTH ──
+function headers() { return {'Content-Type':'application/json','Authorization':`Bearer ${localStorage.getItem('token')}`}; }
+let refreshPromise = null;
+async function apiCall(url, opts={}) {
+  opts.headers = headers();
+  let res = await fetch(url, opts);
+  if (res.status === 401) {
+    const rt = localStorage.getItem('refreshToken');
+    if (!rt) { logout(); return null; }
+    if (!refreshPromise) {
+      refreshPromise = fetch(`${API}/Auth/refresh-token`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({refreshToken:rt})})
+        .then(async r => {
+          if (!r.ok) throw new Error('refresh_failed');
+          const d = await r.json();
+          localStorage.setItem('token', d.accessToken);
+          if (d.refreshToken) localStorage.setItem('refreshToken', d.refreshToken);
+        })
+        .finally(() => { refreshPromise = null; });
+    }
+    try { await refreshPromise; } catch { logout(); return null; }
+    opts.headers = headers();
+    res = await fetch(url, opts);
+  }
+  return res;
+}
+function logout(e) { if(e) e.preventDefault(); localStorage.clear(); location.href='login.html'; }
+
+// ── LOAD ALL PRESCRIPTIONS ──
+async function loadAllPrescriptions() {
+  renderSkeletons();
+  try {
+    // Get all cases first
+    const casesRes = await apiCall(`${API}/Cases?page=1&pageSize=100`);
+    if (!casesRes||!casesRes.ok) { showEmpty(); return; }
+    const casesData = await casesRes.json();
+    allCases = casesData.items||casesData.data||casesData||[];
+    if (!allCases.length) { showEmpty('No cases found.'); return; }
+
+    // Get prescriptions for each case
+    const promises = allCases.map(c =>
+      apiCall(`${API}/Prescriptions/case/${c.id}`)
+        .then(r => r&&r.ok ? r.json() : null)
+        .then(data => {
+          if (!data) return [];
+          const rxs = data.items||data.data||(Array.isArray(data)?data:[])||[];
+          return rxs.map(rx => ({...rx, patientName: c.patientName||c.name||'Unknown', caseId: c.id, operationType: c.operationType||'—'}));
+        })
+        .catch(() => [])
+    );
+
+    const results = await Promise.all(promises);
+    allPrescriptions = results.flat().sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    // Stats
+    const totalMeds = allPrescriptions.reduce((sum,rx) => sum + (rx.medications||rx.prescriptionMedications||[]).length, 0);
+    const uniquePatients = new Set(allPrescriptions.map(rx => rx.patientName)).size;
+    document.getElementById('statTotal').textContent    = allPrescriptions.length;
+    document.getElementById('statPatients').textContent = uniquePatients;
+    document.getElementById('statMeds').textContent     = totalMeds;
+
+    applySearch('');
+  } catch { showEmpty('Network error. Please try again.'); }
+}
+
+// ── SEARCH ──
+function debounceSearch(val) {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => applySearch(val.trim()), 350);
+}
+
+function applySearch(q) {
+  filteredPrescriptions = q
+    ? allPrescriptions.filter(rx => (rx.patientName||'').toLowerCase().includes(q.toLowerCase()))
+    : [...allPrescriptions];
+  document.getElementById('resultsLabel').textContent = `${filteredPrescriptions.length} Prescription${filteredPrescriptions.length!==1?'s':''}`;
+  renderPrescriptions();
+}
+
+// ── RENDER ──
+function renderPrescriptions() {
+  const grid = document.getElementById('rxGrid');
+  if (!filteredPrescriptions.length) {
+    grid.innerHTML = `<div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <h3>No Prescriptions</h3><p>Create a new prescription to get started.</p>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = filteredPrescriptions.map((rx, i) => {
+    const meds = rx.medications || rx.prescriptionMedications || [];
+    const {bg, text} = avatarColor(rx.patientName||'P');
+    // Adherence calc
+    const adhMeds = meds.filter(m => m.todayAdherence);
+    const taken   = adhMeds.filter(m => m.todayAdherence?.status === 0).length;
+    const pct     = adhMeds.length ? Math.round((taken/adhMeds.length)*100) : null;
+
+    return `<div class="rx-card" style="animation-delay:${i*.05}s">
+      <div class="rx-card-header">
+        <div class="rx-patient-info">
+          <div class="rx-avatar" style="background:${bg};color:${text}">${getInitials(rx.patientName||'P')}</div>
+          <div>
+            <div class="rx-patient-name">${escHtml(rx.patientName||'Unknown')}</div>
+            <div class="rx-patient-sub">Case #${rx.caseId} · ${escHtml(rx.operationType||'—')}</div>
+          </div>
+        </div>
+        <div class="rx-header-right">
+          <span class="rx-date">${formatDate(rx.createdAt)}</span>
+          <div class="rx-actions">
+            <button class="btn-icon-sm" title="Edit" onclick="openEditModal(${rx.id}, ${rx.caseId})">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="btn-icon-sm" title="View Case" onclick="location.href='case-details.html?id=${rx.caseId}'">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="rx-card-body">
+        ${rx.instructions ? `<div class="rx-instructions">${escHtml(rx.instructions)}</div>` : ''}
+        <div class="rx-meds-title">Medications (${meds.length})</div>
+        ${meds.map(m => `
+          <div class="rx-med-item">
+            <div class="rx-med-dot"></div>
+            <div>
+              <div class="rx-med-name">${escHtml(m.medicationName)}</div>
+              <div class="rx-med-details">
+                <span class="rx-med-tag">${escHtml(m.dosage)}</span>
+                <span class="rx-med-tag">${escHtml(m.frequency)}</span>
+                <span class="rx-med-tag">${m.durationDays} days</span>
+              </div>
+            </div>
+          </div>`).join('')}
+      </div>
+      ${pct !== null ? `
+      <div class="rx-card-footer">
+        <span class="adherence-label">Today's adherence</span>
+        <div class="adherence-bar-wrap">
+          <div class="adherence-bar-bg"><div class="adherence-bar-fill" style="width:${pct}%"></div></div>
+        </div>
+        <span class="adherence-pct">${pct}%</span>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function renderSkeletons() {
+  document.getElementById('rxGrid').innerHTML = Array.from({length:6},(_,i)=>`
+    <div class="skeleton-card" style="animation-delay:${i*.06}s"><div class="skeleton" style="height:100%;border-radius:12px"></div></div>`).join('');
+}
+
+function showEmpty(msg='No prescriptions found.') {
+  document.getElementById('rxGrid').innerHTML = `<div class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/></svg>
+    <h3>No Prescriptions</h3><p>${msg}</p>
+  </div>`;
+  document.getElementById('resultsLabel').textContent = '0 Prescriptions';
+}
+
+// ── NEW RX MODAL ──
+async function openNewRxModal() {
+  editingRxId = null;
+  selectedCaseId = null;
+  medCount = 0;
+  document.getElementById('rxModalTitle').textContent = 'New Prescription';
+  document.getElementById('rxError').classList.remove('show');
+  document.getElementById('step1').style.display = '';
+  document.getElementById('step2').style.display = 'none';
+  document.getElementById('rxSaveBtn').style.display = 'none';
+  document.getElementById('rxInstructions').value = '';
+  document.getElementById('medsContainer').innerHTML = '';
+  document.getElementById('newRxModal').classList.add('open');
+  await loadCasesForSelect();
+}
+
+async function loadCasesForSelect() {
+  document.getElementById('casesList').innerHTML = `<div class="skeleton" style="height:80px;border-radius:10px"></div>`;
+  try {
+    if (!allCases.length) {
+      const res = await apiCall(`${API}/Cases?page=1&pageSize=100`);
+      if (res&&res.ok) { const d=await res.json(); allCases=d.items||d.data||d||[]; }
+    }
+    const activeCases = allCases.filter(c => c.status===0||c.status==='Active');
+    if (!activeCases.length) { document.getElementById('casesList').innerHTML = '<p style="font-size:13px;color:var(--text-muted)">No active cases found.</p>'; return; }
+    document.getElementById('casesList').innerHTML = activeCases.map(c => `
+      <div class="case-select-item" id="caseItem-${c.id}" onclick="selectCase(${c.id}, '${escHtml(c.patientName||c.name||'Unknown')}', '${escHtml(c.operationType||'—')}')">
+        <div style="width:32px;height:32px;border-radius:9px;background:${avatarColor(c.patientName||'P').bg};color:${avatarColor(c.patientName||'P').text};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">${getInitials(c.patientName||c.name||'P')}</div>
+        <div><div class="case-select-name">${escHtml(c.patientName||c.name||'Unknown')}</div><div class="case-select-sub">Case #${c.id} · ${escHtml(c.operationType||'—')}</div></div>
+      </div>`).join('');
+  } catch { document.getElementById('casesList').innerHTML = '<p style="font-size:13px;color:var(--error)">Could not load cases.</p>'; }
+}
+
+function selectCase(id, name, op) {
+  selectedCaseId = id;
+  document.querySelectorAll('.case-select-item').forEach(el => el.classList.remove('selected'));
+  document.getElementById(`caseItem-${id}`)?.classList.add('selected');
+  document.getElementById('selectedCaseLabel').textContent = `${name} — Case #${id} · ${op}`;
+  document.getElementById('step1').style.display = 'none';
+  document.getElementById('step2').style.display = '';
+  document.getElementById('rxSaveBtn').style.display = '';
+  if (!document.getElementById('medsContainer').children.length) addMedRow();
+}
+
+function backToStep1() {
+  document.getElementById('step1').style.display = '';
+  document.getElementById('step2').style.display = 'none';
+  document.getElementById('rxSaveBtn').style.display = 'none';
+}
+
+// ── EDIT RX ──
+async function openEditModal(rxId, caseId) {
+  editingRxId = rxId;
+  selectedCaseId = caseId;
+  medCount = 0;
+  document.getElementById('rxModalTitle').textContent = 'Edit Prescription';
+  document.getElementById('rxError').classList.remove('show');
+  document.getElementById('step1').style.display = 'none';
+  document.getElementById('step2').style.display = '';
+  document.getElementById('rxSaveBtn').style.display = '';
+  document.getElementById('medsContainer').innerHTML = '';
+
+  const rx = allPrescriptions.find(r => r.id === rxId);
+  if (rx) {
+    document.getElementById('rxInstructions').value = rx.instructions||'';
+    document.getElementById('selectedCaseLabel').textContent = `${rx.patientName} — Case #${rx.caseId}`;
+    const meds = rx.medications||rx.prescriptionMedications||[];
+    meds.forEach(m => addMedRow(m));
+  }
+  document.getElementById('newRxModal').classList.add('open');
+}
+
+// ── MED ROWS ──
+function addMedRow(prefill = null) {
+  medCount++;
+  const id = `medRow-${medCount}`;
+  const div = document.createElement('div');
+  div.className = 'med-row'; div.id = id;
+  div.innerHTML = `
+    <div class="med-row-header">
+      <span class="med-row-title">Medication ${medCount}</span>
+      <button class="remove-med-btn" onclick="document.getElementById('${id}').remove()">×</button>
+    </div>
+    <div class="form-row" style="margin-bottom:8px">
+      <div class="form-group" style="margin:0"><label class="form-label" style="font-size:11px">Name <span>*</span></label><input class="form-input" data-field="name" placeholder="e.g. Amoxicillin" value="${escHtml(prefill?.medicationName||'')}" style="font-size:13px"/></div>
+      <div class="form-group" style="margin:0"><label class="form-label" style="font-size:11px">Dosage <span>*</span></label><input class="form-input" data-field="dosage" placeholder="e.g. 500mg" value="${escHtml(prefill?.dosage||'')}" style="font-size:13px"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="margin:0"><label class="form-label" style="font-size:11px">Times per day <span>*</span></label>
+        <select class="form-input" data-field="timesPerDay" style="font-size:13px">
+          <option value="1" ${prefill?.timesPerDay==1?'selected':''}>Once a day</option>
+          <option value="2" ${prefill?.timesPerDay==2?'selected':''}>Twice a day</option>
+          <option value="3" ${!prefill||prefill?.timesPerDay==3?'selected':''}>3 times a day</option>
+          <option value="4" ${prefill?.timesPerDay==4?'selected':''}>4 times a day</option>
+          <option value="5" ${prefill?.timesPerDay==5?'selected':''}>5 times a day</option>
+          <option value="6" ${prefill?.timesPerDay==6?'selected':''}>6 times a day</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin:0"><label class="form-label" style="font-size:11px">Duration (days) <span>*</span></label><input class="form-input" type="number" data-field="days" placeholder="7" value="${prefill?.durationDays||''}" min="1" style="font-size:13px"/></div>
+    </div>`;
+  document.getElementById('medsContainer').appendChild(div);
+}
+
+async function saveRx() {
+  document.getElementById('rxError').classList.remove('show');
+  if (!selectedCaseId) { showRxError('Please select a patient case.'); return; }
+  const meds = [];
+  for (const row of document.getElementById('medsContainer').children) {
+    const name  = row.querySelector('[data-field="name"]')?.value.trim();
+    const dosage = row.querySelector('[data-field="dosage"]')?.value.trim();
+    const freq  = row.querySelector('[data-field="timesPerDay"]')?.value;
+    const days  = row.querySelector('[data-field="days"]')?.value;
+    if (!name||!dosage||!freq||!days) { showRxError('Please fill in all medication fields.'); return; }
+    meds.push({medicationName:name, dosage, timesPerDay:parseInt(freq), durationDays:parseInt(days)});
+  }
+  if (!meds.length) { showRxError('Add at least one medication.'); return; }
+
+  const btn = document.getElementById('rxSaveBtn');
+  btn.disabled = true;
+  btn.innerHTML = `<svg style="animation:spin .7s linear infinite" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Saving...`;
+
+  const instructions = document.getElementById('rxInstructions').value.trim() || null;
+  const isEdit = !!editingRxId;
+  const url    = isEdit ? `${API}/Prescriptions/${editingRxId}` : `${API}/Prescriptions`;
+  const method = isEdit ? 'PUT' : 'POST';
+
+  try {
+    const res = await apiCall(url, {method, body: JSON.stringify({caseId: selectedCaseId, instructions, medications: meds})});
+    if (res&&res.ok) {
+      closeModal('newRxModal');
+      showToast(isEdit ? 'Prescription updated! Patient notified.' : 'Prescription created! Patient notified.', 'success');
+      loadAllPrescriptions();
+    } else {
+      const d = await res?.json().catch(()=>({}));
+      showRxError(d.message||d.title||'Failed to save prescription.');
+    }
+  } catch { showRxError('Network error. Please try again.'); }
+  finally {
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/></svg> Save Prescription`;
+  }
+}
+
+function showRxError(msg) {
+  const box = document.getElementById('rxError');
+  box.className = 'alert-box error show';
+  document.getElementById('rxErrorMsg').textContent = msg;
+}
+
+// ── MODAL ──
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); }));
+document.addEventListener('keydown', e => { if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open')); });
+
+// ── ALERT COUNT ──
+async function loadAlertCount() {
+  try {
+    const res = await apiCall(`${API}/Alerts/count`);
+    if (!res||!res.ok) return;
+    const d = await res.json();
+    const count = d.count ?? d ?? 0;
+    const badge = document.getElementById('alertsBadge');
+    if (count>0) { badge.textContent=count>99?'99+':count; badge.style.display=''; }
+  } catch {}
+}
+
+// ── THEME ──
+function initTheme(){const t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);updateThemeIcon(t);}
+document.getElementById('themeToggle').addEventListener('click',()=>{const cur=document.documentElement.getAttribute('data-theme');const next=cur==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',next);localStorage.setItem('theme',next);updateThemeIcon(next);});
+function updateThemeIcon(t){document.getElementById('themeIcon').innerHTML=t==='dark'?`<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`:`<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;}
+
+// ── SIDEBAR ──
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('open');}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('open');}
+
+// ── AVATAR ──
+async function loadUserAvatar() {
+  try {
+    const res = await apiCall(`${API}/Doctor/profile`);
+    if (!res||!res.ok) return;
+    const d = await res.json();
+    const name = d.name||d.doctorName||'Doctor';
+    document.getElementById('userAvatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=2563EB&color=fff&size=80`;
+  } catch {}
+}
+
+// ── TOAST ──
+function showToast(msg,type='success'){
+  const c=document.getElementById('toastContainer');
+  const icons={success:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`,error:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`};
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;
+  t.innerHTML=`${icons[type]||icons.success}<span class="toast-msg">${escHtml(msg)}</span><button class="toast-x" onclick="this.parentElement.remove()">×</button>`;
+  c.appendChild(t);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('show')));
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),500);},4000);
+}
+
+// ── HELPERS ──
+function formatDate(s){if(!s)return '—';const d=new Date(s);return isNaN(d)?s:d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function getInitials(n){return String(n||'').split(' ').filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('');}
+const AC=[{bg:'rgba(37,99,235,0.12)',text:'#2563EB'},{bg:'rgba(16,185,129,0.12)',text:'#10B981'},{bg:'rgba(245,158,11,0.12)',text:'#F59E0B'},{bg:'rgba(239,68,68,0.12)',text:'#EF4444'},{bg:'rgba(139,92,246,0.12)',text:'#8B5CF6'}];
+function avatarColor(n){let h=0;for(const c of String(n||''))h=(h*31+c.charCodeAt(0))&0xffffffff;return AC[Math.abs(h)%AC.length];}
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+
+</html>

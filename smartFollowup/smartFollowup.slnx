@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".env" />
+    <File Path="docker-compose.yml" />
+    <File Path="gitignore" />
+  </Folder>
+  <Project Path="smartFollowup.API/smartFollowup.API.csproj" />
+</Solution>
