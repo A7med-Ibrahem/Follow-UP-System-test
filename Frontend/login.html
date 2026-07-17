@@ -362,11 +362,11 @@ window.addEventListener('DOMContentLoaded', () => {
   const role = localStorage.getItem('userRole');
   if (token && role) {
       const map = {
-          Doctor: '/Front doctor-dashboard.html',
-          Patient: 'patient-dashboard.html',
-          Admin: 'admin-dashboard.html'
+          Doctor: '/doctor-dashboard.html',
+          Patient: '/patient-dashboard.html',
+          Admin: '/admin-dashboard.html'
       };
-      window.location.href = map[role] || 'login.html';
+      window.location.href = map[role] || '/login.html';
       return;
   }
   initTheme();
@@ -452,8 +452,8 @@ async function doLogin() {
 }
 
 function redirect(r) {
-  const map = { Doctor:'/Frontend/doctor-dashboard.html', Patient:'/Frontend/patient-dashboard.html', Admin:'/Frontend/admin-dashboard.html' };
-  window.location.href = map[r] || '/Frontend/doctor-dashboard.html';
+  const map = { Doctor:'/doctor-dashboard.html', Patient:'/patient-dashboard.html', Admin:'/admin-dashboard.html' };
+  window.location.href = map[r] || '/doctor-dashboard.html';
 }
 
 function parseRole(token) {
