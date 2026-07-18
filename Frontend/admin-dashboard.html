@@ -110,6 +110,8 @@ tr:hover td{background:rgba(37,99,235,0.015);transition:background .15s;}
 .act-approve:hover{background:rgba(16,185,129,0.15);}
 .act-reject{border-color:rgba(239,68,68,0.3);color:var(--error);background:rgba(239,68,68,0.07);}
 .act-reject:hover{background:rgba(239,68,68,0.15);}
+.act-view{border-color:var(--border);color:var(--text-muted);background:var(--bg-input);}
+.act-view:hover{background:var(--bg-hover, var(--bg-input));color:var(--text-main);}
 .act-toggle-active{border-color:rgba(239,68,68,0.3);color:var(--error);background:rgba(239,68,68,0.07);}
 .act-toggle-active:hover{background:rgba(239,68,68,0.15);}
 .act-toggle-inactive{border-color:rgba(16,185,129,0.3);color:var(--success);background:rgba(16,185,129,0.07);}
@@ -282,6 +284,21 @@ tr:hover td{background:rgba(37,99,235,0.015);transition:background .15s;}
   </div>
 </div>
 
+<!-- VIEW DOCTOR MODAL -->
+<div class="modal-overlay" id="doctorViewModal">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header">
+      <span class="modal-title">Doctor Account</span>
+      <button class="modal-close" onclick="closeModal('doctorViewModal')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" id="doctorViewBody" style="font-size:13px">
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('doctorViewModal')">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast-container" id="toastContainer"></div>
 
@@ -293,6 +310,7 @@ let rejectTargetId = null;
 let reqFilter = 'pending';
 let reqCurrentPage = 1;
 let docCurrentPage = 1;
+let loadedDoctors = [];
 let hubConnection = null;
 
 // ── LIVE NOTIFICATIONS (SignalR) ──
@@ -627,6 +645,7 @@ async function loadDoctors(page=1) {
     const res = await apiCall(`${API}/Admin/doctors`);
     if (!res||!res.ok) { showEmptyTable('doctorsEmpty','Could not load doctors.'); return; }
     const all = await res.json();
+    loadedDoctors = all;
     const total = all.length;
     const pageSize = 10;
     const list = all.slice((page-1)*pageSize, page*pageSize);
@@ -652,7 +671,10 @@ async function loadDoctors(page=1) {
         <td><span class="badge ${isActive?'badge-active':'badge-inactive'}">${isActive?'Active':'Inactive'}</span></td>
         <td>
           <div class="action-btns">
-            ${d.userId ? `<button class="act-btn ${isActive?'act-toggle-active':'act-toggle-inactive'}" onclick="toggleDoctor(${d.userId},${isActive},this)">
+            ${d.userId ? `<button class="act-btn act-view" onclick="viewDoctor(${d.userId})">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>View
+            </button>
+            <button class="act-btn ${isActive?'act-toggle-active':'act-toggle-inactive'}" onclick="toggleDoctor(${d.userId},${isActive},this)">
               ${isActive
                 ? `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Deactivate`
                 : `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Activate`}
@@ -667,6 +689,24 @@ async function loadDoctors(page=1) {
 
     renderPagination('doc', page, total, pageSize, (p)=>loadDoctors(p));
   } catch { tbody.innerHTML=''; document.getElementById('doctorsEmpty').style.display=''; document.getElementById('doctorsEmpty').innerHTML=emptyStateHTML('Network error.'); }
+}
+
+function viewDoctor(userId) {
+  const d = loadedDoctors.find(x => x.userId === userId);
+  if (!d) { showToast('Could not find that doctor.', 'error'); return; }
+  const isActive = d.isActive === true;
+  document.getElementById('doctorViewBody').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div><span style="color:var(--text-muted)">Name</span><div style="font-weight:600">${escHtml(d.name)}</div></div>
+      <div><span style="color:var(--text-muted)">Email</span><div>${escHtml(d.email)}</div></div>
+      <div><span style="color:var(--text-muted)">Phone</span><div>${escHtml(d.phone||'—')}</div></div>
+      <div><span style="color:var(--text-muted)">Specialty</span><div>${escHtml(d.specialty||'—')}</div></div>
+      <div><span style="color:var(--text-muted)">License Number</span><div>${escHtml(d.licenseNumber||'—')}</div></div>
+      <div><span style="color:var(--text-muted)">Hospital</span><div>${escHtml(d.hospital||'—')}</div></div>
+      <div><span style="color:var(--text-muted)">Status</span><div><span class="badge ${isActive?'badge-active':'badge-inactive'}">${isActive?'Active':'Inactive'}</span></div></div>
+      <div><span style="color:var(--text-muted)">Joined</span><div>${formatDate(d.createdAt)}</div></div>
+    </div>`;
+  openModal('doctorViewModal');
 }
 
 async function deleteDoctor(userId, name, btn) {

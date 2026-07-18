@@ -61,8 +61,8 @@ namespace SmartFollowUp.API.Services
         // Submit Doctor Request
         public async Task<bool> SubmitDoctorRequestAsync(DoctorRequestDto request)
         {
-            var emailExists = await _context.Users.AnyAsync(u => u.Email == request.Email) ||
-                              await _context.DoctorRequests.AnyAsync(r => r.Email == request.Email);
+            var emailExists = await _context.Users.AnyAsync(u => u.Email == request.Email && !u.IsDeleted) ||
+                              await _context.DoctorRequests.AnyAsync(r => r.Email == request.Email && r.Status == DoctorRequestStatus.Pending);
 
             if (emailExists) return false;
 
