@@ -77,7 +77,26 @@ namespace SmartFollowUp.API.Data
                 string? oldValues = null;
                 string? newValues = null;
 
-                if (entry.State == EntityState.Modified)
+                if (entry.State == EntityState.Added)
+                {
+                    // Record what was actually created (excluding sensitive fields),
+                    // so "View" shows something useful for CREATE actions too.
+                    var newProps = entry.Properties
+                        .Where(p => !SensitiveProperties.Contains(p.Metadata.Name))
+                        .ToDictionary(p => p.Metadata.Name, p => p.CurrentValue?.ToString());
+
+                    newValues = System.Text.Json.JsonSerializer.Serialize(newProps);
+                }
+                else if (entry.State == EntityState.Deleted)
+                {
+                    // Record what the row looked like right before it was deleted.
+                    var oldProps = entry.Properties
+                        .Where(p => !SensitiveProperties.Contains(p.Metadata.Name))
+                        .ToDictionary(p => p.Metadata.Name, p => p.OriginalValue?.ToString());
+
+                    oldValues = System.Text.Json.JsonSerializer.Serialize(oldProps);
+                }
+                else if (entry.State == EntityState.Modified)
                 {
                     var modifiedProps = entry.Properties.Where(p => p.IsModified).ToList();
 

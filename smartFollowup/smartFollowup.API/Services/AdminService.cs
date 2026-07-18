@@ -147,6 +147,7 @@ namespace SmartFollowUp.API.Services
                     Action = a.Action,
                     EntityName = a.EntityName,
                     EntityId = a.EntityId,
+                    OldValues = a.OldValues,
                     NewValues = a.NewValues,
                     CreatedAt = a.CreatedAt
                 })
