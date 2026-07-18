@@ -16,7 +16,7 @@ namespace SmartFollowUp.API.Validators
 
             RuleFor(x => x.PatientEmail)
                 .NotEmpty().WithMessage("Patient email is required")
-                .EmailAddress().WithMessage("Invalid email format")
+                .EmailAddress().WithMessage("Please enter a valid email address.")
                 .MaximumLength(256).WithMessage("Email must not exceed 256 characters")
                 .Must(email => email.Trim().EndsWith("@gmail.com", StringComparison.OrdinalIgnoreCase))
                     .WithMessage("Email must be a @gmail.com address");

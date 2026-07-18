@@ -8,7 +8,7 @@ namespace SmartFollowUp.API.Validators
         public CreatePrescriptionRequestValidator()
         {
             RuleFor(x => x.CaseId)
-                .GreaterThan(0).WithMessage("Invalid Case ID");
+                .GreaterThan(0).WithMessage("Case ID must be a valid, positive number.");
 
             RuleFor(x => x.Instructions)
                 .MaximumLength(1000).WithMessage("Instructions must not exceed 1000 characters");
@@ -28,7 +28,7 @@ namespace SmartFollowUp.API.Validators
                 .NotEmpty().WithMessage("Medication name is required")
                 .MaximumLength(150).WithMessage("Medication name must not exceed 150 characters")
                 .Matches(@"^[a-zA-Z\u0600-\u06FF0-9\s'\-\.,/]+$")
-                    .WithMessage("Medication name contains invalid characters");
+                    .WithMessage("Medication name can only contain letters, numbers, spaces, and the characters ' - . , /");
 
             RuleFor(x => x.Dosage)
                 .NotEmpty().WithMessage("Dosage is required")

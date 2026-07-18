@@ -2,7 +2,7 @@
 <html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>SmartFollow Up | Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -23,7 +23,7 @@
   --shadow:0 4px 6px -1px rgba(0,0,0,0.4);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Inter',sans-serif;background:var(--bg-main);color:var(--text-main);display:flex;height:100vh;overflow:hidden;transition:background-color var(--transition),color var(--transition);}
+body{font-family:'Inter',sans-serif;background:var(--bg-main);color:var(--text-main);display:flex;height:100vh;height:100dvh;overflow:hidden;transition:background-color var(--transition),color var(--transition);}
 ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
 
 /* ── SIDEBAR ── */
@@ -180,7 +180,7 @@ tr:hover td{background:rgba(37,99,235,0.015);transition:background .15s;}
   aside{position:fixed;left:-100%;top:0;height:100%;width:250px;padding:24px;transition:left var(--transition);z-index:200;}
   aside.open{left:0;}.logo span,.nav-link span{display:flex;}.nav-link{justify-content:flex-start;}
   .mobile-menu-btn{display:flex;}.sidebar-overlay.open{display:block;}
-  .content{padding:16px;}.stats-grid{grid-template-columns:1fr 1fr;}
+  .content{padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom) + 24px);}.stats-grid{grid-template-columns:1fr 1fr;}
 }
 @media(max-width:480px){.stats-grid{grid-template-columns:1fr;}.avatar-name{display:none;}.filter-tabs{width:100%;}.filter-tab{flex:1;justify-content:center;}}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -219,6 +219,10 @@ tr:hover td{background:rgba(37,99,235,0.015);transition:background .15s;}
     <a href="#" class="nav-link" onclick="setPage('patients',this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       <span>All Patients</span>
+    </a>
+    <a href="#" class="nav-link" onclick="setPage('audit',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      <span>Audit Log</span>
     </a>
   </nav>
   <div class="nav-bottom">
@@ -281,6 +285,7 @@ tr:hover td{background:rgba(37,99,235,0.015);transition:background .15s;}
 <!-- TOAST -->
 <div class="toast-container" id="toastContainer"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
 <script>
 const API = 'https://followupsystem.runasp.net/api';
 let currentPage = 'overview';
@@ -288,6 +293,29 @@ let rejectTargetId = null;
 let reqFilter = 'pending';
 let reqCurrentPage = 1;
 let docCurrentPage = 1;
+let hubConnection = null;
+
+// ── LIVE NOTIFICATIONS (SignalR) ──
+function connectNotificationHub() {
+  const token = localStorage.getItem('token');
+  if (!token || typeof signalR === 'undefined') return;
+
+  const hubUrl = API.replace(/\/api$/, '') + '/hubs/notifications';
+  hubConnection = new signalR.HubConnectionBuilder()
+    .withUrl(hubUrl, { accessTokenFactory: () => localStorage.getItem('token') })
+    .withAutomaticReconnect()
+    .build();
+
+  hubConnection.on('ReceiveNotification', (n) => {
+    showToast(n.title || 'New notification', 'success');
+  });
+
+  // withAutomaticReconnect() gives up after a few tries; if that happens,
+  // retry from scratch after a short delay instead of going silent.
+  hubConnection.onclose(() => { setTimeout(connectNotificationHub, 5000); });
+
+  hubConnection.start().catch(() => { setTimeout(connectNotificationHub, 5000); });
+}
 
 // ── INIT ──
 window.addEventListener('DOMContentLoaded', () => {
@@ -304,6 +332,7 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   initTheme();
   renderPage('overview');
+  connectNotificationHub();
 });
 
 // ── AUTH ──
@@ -336,7 +365,7 @@ function logout(e) { if(e) e.preventDefault(); localStorage.clear(); location.hr
 function setPage(page, btn) {
   document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
   btn.classList.add('active');
-  const labels = {overview:'Overview',requests:'Doctor Requests',doctors:'Manage Doctors',patients:'All Patients'};
+  const labels = {overview:'Overview',requests:'Doctor Requests',doctors:'Manage Doctors',patients:'All Patients',audit:'Audit Log'};
   document.getElementById('pageLabel').textContent = labels[page]||page;
   renderPage(page);
 }
@@ -348,6 +377,7 @@ async function renderPage(page) {
   else if (page==='requests') await renderRequests(c);
   else if (page==='doctors') await renderDoctors(c);
   else if (page==='patients') await renderPatients(c);
+  else if (page==='audit') await renderAuditLog(c);
 }
 
 // ── OVERVIEW ──
@@ -731,7 +761,173 @@ async function loadPatients(page=1) {
   } catch { tbody.innerHTML=''; document.getElementById('patientsEmpty').style.display=''; document.getElementById('patientsEmpty').innerHTML=emptyStateHTML('Network error.'); }
 }
 
-// ── PAGINATION ──
+// ── AUDIT LOG ──
+let auditCurrentPage = 1;
+let auditPageSize = 20;
+let auditEntityNames = [];
+
+async function renderAuditLog(c, page=1) {
+  auditCurrentPage = page;
+  c.innerHTML = `
+    <div class="page-heading"><h1>Audit Log</h1><p>A record of every create, update, and delete action across the system.</p></div>
+    <div class="section-header" style="flex-wrap:wrap;gap:10px;align-items:flex-end">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+        <div>
+          <label style="display:block;font-size:11px;color:var(--text-muted);margin-bottom:4px">User name</label>
+          <input type="text" id="auditFilterUser" placeholder="e.g. Ahmed" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-main);font-size:13px;width:160px"/>
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;color:var(--text-muted);margin-bottom:4px">Entity</label>
+          <select id="auditFilterEntity" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-main);font-size:13px">
+            <option value="">All</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;color:var(--text-muted);margin-bottom:4px">Action</label>
+          <select id="auditFilterAction" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-main);font-size:13px">
+            <option value="">All</option>
+            <option value="CREATE">Create</option>
+            <option value="UPDATE">Update</option>
+            <option value="DELETE">Delete</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;color:var(--text-muted);margin-bottom:4px">From</label>
+          <input type="date" id="auditFilterFrom" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-main);font-size:13px"/>
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;color:var(--text-muted);margin-bottom:4px">To</label>
+          <input type="date" id="auditFilterTo" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-main);font-size:13px"/>
+        </div>
+        <button class="btn-primary" style="padding:8px 16px;font-size:13px" onclick="loadAuditLog(1)">Filter</button>
+        <button class="btn-secondary" style="padding:8px 16px;font-size:13px" onclick="clearAuditFilters()">Clear</button>
+      </div>
+    </div>
+    <div class="table-container">
+      <table>
+        <thead><tr><th>When</th><th>User</th><th>Action</th><th>Entity</th><th>Details</th></tr></thead>
+        <tbody id="auditBody"></tbody>
+      </table>
+      <div id="auditEmpty" style="display:none"></div>
+      <div class="pagination" id="auditPagination" style="display:none">
+        <span class="page-info" id="auditPageInfo"></span>
+        <div class="page-ctrls" id="auditPageCtrls"></div>
+      </div>
+    </div>`;
+  loadAuditEntityNames();
+  loadAuditLog(page);
+}
+
+async function loadAuditEntityNames() {
+  const sel = document.getElementById('auditFilterEntity');
+  if (!sel) return;
+  try {
+    const res = await apiCall(`${API}/Admin/audit-logs/entity-names`);
+    if (!res || !res.ok) return;
+    auditEntityNames = await res.json();
+    sel.innerHTML = '<option value="">All</option>' + auditEntityNames.map(n => `<option value="${escHtml(n)}">${escHtml(n)}</option>`).join('');
+  } catch {}
+}
+
+function clearAuditFilters() {
+  document.getElementById('auditFilterUser').value = '';
+  document.getElementById('auditFilterEntity').value = '';
+  document.getElementById('auditFilterAction').value = '';
+  document.getElementById('auditFilterFrom').value = '';
+  document.getElementById('auditFilterTo').value = '';
+  loadAuditLog(1);
+}
+
+function buildAuditQuery(page) {
+  const params = new URLSearchParams({ page, pageSize: auditPageSize });
+  const userName = document.getElementById('auditFilterUser')?.value.trim();
+  const entityName = document.getElementById('auditFilterEntity')?.value;
+  const action = document.getElementById('auditFilterAction')?.value;
+  const fromDate = document.getElementById('auditFilterFrom')?.value;
+  const toDate = document.getElementById('auditFilterTo')?.value;
+  if (userName) params.set('userName', userName);
+  if (entityName) params.set('entityName', entityName);
+  if (action) params.set('action', action);
+  if (fromDate) params.set('fromDate', fromDate);
+  if (toDate) params.set('toDate', toDate);
+  return params.toString();
+}
+
+async function loadAuditLog(page=1) {
+  auditCurrentPage = page;
+  const tbody = document.getElementById('auditBody');
+  if (!tbody) return;
+  renderTableSkeletons(tbody, 5, 6);
+  try {
+    const res = await apiCall(`${API}/Admin/audit-logs?${buildAuditQuery(page)}`);
+    if (!res || !res.ok) {
+      tbody.innerHTML = '';
+      document.getElementById('auditEmpty').style.display = '';
+      document.getElementById('auditEmpty').innerHTML = emptyStateHTML('Could not load the audit log.');
+      document.getElementById('auditPagination').style.display = 'none';
+      return;
+    }
+    const list = await res.json();
+
+    if (!list.length) {
+      tbody.innerHTML = '';
+      const el = document.getElementById('auditEmpty');
+      el.style.display = ''; el.innerHTML = emptyStateHTML(page > 1 ? 'No more entries.' : 'No audit entries yet.');
+      document.getElementById('auditPagination').style.display = 'none';
+      return;
+    }
+
+    document.getElementById('auditEmpty').style.display = 'none';
+    const actionColors = { CREATE: 'badge-active', UPDATE: 'badge-pending', DELETE: 'badge-inactive' };
+    tbody.innerHTML = list.map((a, i) => {
+      const when = a.createdAt ? new Date(a.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+      const badgeClass = actionColors[a.action] || 'badge-inactive';
+      const detailsId = `auditDetails${page}_${i}`;
+      const hasDetails = a.newValues && a.newValues !== '{}';
+      return `<tr>
+        <td style="font-size:12px;color:var(--text-muted);white-space:nowrap">${when}</td>
+        <td>
+          <div style="font-weight:600;font-size:13px">${escHtml(a.userName)}</div>
+          <div style="font-size:11px;color:var(--text-muted)">${escHtml(a.userRole)}</div>
+        </td>
+        <td><span class="badge ${badgeClass}">${escHtml(a.action)}</span></td>
+        <td style="font-size:12px">${escHtml(a.entityName)}${a.entityId ? ' #' + escHtml(a.entityId) : ''}</td>
+        <td style="font-size:12px">
+          ${hasDetails
+            ? `<button class="btn-secondary" style="padding:4px 10px;font-size:11px" onclick="toggleAuditDetails('${detailsId}')">View</button>
+               <pre id="${detailsId}" style="display:none;margin-top:8px;max-width:360px;white-space:pre-wrap;word-break:break-all;font-size:11px;background:var(--bg-input);padding:8px;border-radius:6px">${escHtml(formatAuditJson(a.newValues))}</pre>`
+            : '<span style="color:var(--text-muted)">—</span>'}
+        </td>
+      </tr>`;
+    }).join('');
+
+    // The endpoint returns one page at a time with no total count, so we
+    // show Previous/Next and only enable Next while a full page came back.
+    const ctrls = document.getElementById('auditPageCtrls');
+    document.getElementById('auditPageInfo').textContent = `Page ${page}`;
+    document.getElementById('auditPagination').style.display = 'flex';
+    ctrls.innerHTML = `
+      <button class="btn-secondary" style="padding:6px 14px;font-size:12px" ${page<=1?'disabled':''} onclick="loadAuditLog(${page-1})">Previous</button>
+      <button class="btn-secondary" style="padding:6px 14px;font-size:12px" ${list.length<auditPageSize?'disabled':''} onclick="loadAuditLog(${page+1})">Next</button>
+    `;
+  } catch {
+    tbody.innerHTML = '';
+    document.getElementById('auditEmpty').style.display = '';
+    document.getElementById('auditEmpty').innerHTML = emptyStateHTML('Network error.');
+    document.getElementById('auditPagination').style.display = 'none';
+  }
+}
+
+function toggleAuditDetails(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function formatAuditJson(raw) {
+  try { return JSON.stringify(JSON.parse(raw), null, 2); } catch { return raw; }
+}
+
+
 function renderPagination(prefix, page, total, pageSize, onPage) {
   const pages = Math.ceil(total/pageSize);
   const pagEl = document.getElementById(`${prefix}Pagination`);

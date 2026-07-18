@@ -2,7 +2,7 @@
 <html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>SmartFollow Up | Patient Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -23,7 +23,7 @@
   --shadow:0 4px 6px -1px rgba(0,0,0,0.4);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Inter',sans-serif;background:var(--bg-main);color:var(--text-main);display:flex;height:100vh;overflow:hidden;transition:background-color var(--transition),color var(--transition);}
+body{font-family:'Inter',sans-serif;background:var(--bg-main);color:var(--text-main);display:flex;height:100vh;height:100dvh;overflow:hidden;transition:background-color var(--transition),color var(--transition);}
 ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
 
 /* ── SIDEBAR ── */
@@ -245,7 +245,7 @@ header{height:68px;background:var(--bg-card);border-bottom:1px solid var(--borde
   aside.open{left:0;}.logo span,.nav-link span{display:flex;}.nav-link{justify-content:flex-start;}
   .mobile-menu-btn{display:flex;}.sidebar-overlay.open{display:block;}
   .bottom-grid{grid-template-columns:1fr;}.stats-grid{grid-template-columns:1fr 1fr;}
-  .content{padding:16px;}.risk-hero{flex-direction:column;text-align:center;}
+  .content{padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom) + 24px);}.risk-hero{flex-direction:column;text-align:center;}
   .notif-panel{width:100%;}
 }
 @media(max-width:480px){.stats-grid{grid-template-columns:1fr;}.form-row{grid-template-columns:1fr;}.avatar-name{display:none;}}
@@ -516,8 +516,16 @@ function connectNotificationHub() {
     loadNotifications();
   });
 
+  // withAutomaticReconnect() gives up after a few tries; if that happens
+  // (e.g. the host briefly drops the connection), retry from scratch after
+  // a short delay instead of leaving live notifications dead until reload.
+  hubConnection.onclose(() => {
+    setTimeout(connectNotificationHub, 5000);
+  });
+
   hubConnection.start().catch(() => {
     // Live updates unavailable; the notification panel still works via polling on next load/interaction.
+    setTimeout(connectNotificationHub, 5000);
   });
 }
 

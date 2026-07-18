@@ -21,9 +21,24 @@ namespace SmartFollowUp.API.Controllers
 
         // GET api/admin/audit-logs
         [HttpGet("audit-logs")]
-        public async Task<IActionResult> GetAuditLogs([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        public async Task<IActionResult> GetAuditLogs(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20,
+            [FromQuery] string? userName = null,
+            [FromQuery] string? entityName = null,
+            [FromQuery] string? action = null,
+            [FromQuery] DateTime? fromDate = null,
+            [FromQuery] DateTime? toDate = null)
         {
-            var result = await _adminService.GetAuditLogsAsync(page, pageSize);
+            var result = await _adminService.GetAuditLogsAsync(page, pageSize, userName, entityName, action, fromDate, toDate);
+            return Ok(result);
+        }
+
+        // GET api/admin/audit-logs/entity-names
+        [HttpGet("audit-logs/entity-names")]
+        public async Task<IActionResult> GetAuditEntityNames()
+        {
+            var result = await _adminService.GetAuditEntityNamesAsync();
             return Ok(result);
         }
 

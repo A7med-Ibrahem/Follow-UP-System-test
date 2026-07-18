@@ -8,7 +8,7 @@ namespace SmartFollowUp.API.Validators
         public CreateReportRequestValidator()
         {
             RuleFor(x => x.CaseId)
-                .GreaterThan(0).WithMessage("Invalid Case ID");
+                .GreaterThan(0).WithMessage("Case ID must be a valid, positive number.");
 
             RuleFor(x => x.Temperature)
                 .InclusiveBetween(35, 42)

@@ -9,7 +9,7 @@ namespace SmartFollowUp.API.Validators
         {
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email is required")
-                .EmailAddress().WithMessage("Invalid email format");
+                .EmailAddress().WithMessage("Please enter a valid email address.");
 
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("Password is required")
@@ -25,7 +25,7 @@ namespace SmartFollowUp.API.Validators
         {
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email is required")
-                .EmailAddress().WithMessage("Invalid email format");
+                .EmailAddress().WithMessage("Please enter a valid email address.");
         }
     }
 
@@ -35,7 +35,7 @@ namespace SmartFollowUp.API.Validators
         {
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email is required")
-                .EmailAddress().WithMessage("Invalid email format");
+                .EmailAddress().WithMessage("Please enter a valid email address.");
 
             RuleFor(x => x.Token)
                 .NotEmpty().WithMessage("OTP is required")
@@ -50,7 +50,7 @@ namespace SmartFollowUp.API.Validators
         {
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email is required")
-                .EmailAddress().WithMessage("Invalid email format");
+                .EmailAddress().WithMessage("Please enter a valid email address.");
 
             RuleFor(x => x.Token)
                 .NotEmpty().WithMessage("OTP is required")
@@ -95,7 +95,7 @@ namespace SmartFollowUp.API.Validators
 
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email is required")
-                .EmailAddress().WithMessage("Invalid email format")
+                .EmailAddress().WithMessage("Please enter a valid email address.")
                 .MaximumLength(256).WithMessage("Email must not exceed 256 characters")
                 .Must(email => email.Trim().EndsWith("@gmail.com", StringComparison.OrdinalIgnoreCase))
                     .WithMessage("Email must be a @gmail.com address");

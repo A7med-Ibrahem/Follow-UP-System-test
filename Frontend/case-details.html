@@ -2,7 +2,7 @@
 <html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>SmartFollow Up | Case Details</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -53,6 +53,7 @@
         color: var(--text-main);
         display: flex;
         height: 100vh;
+        height: 100dvh;
         overflow: hidden;
         transition:
           background-color var(--transition),
@@ -1142,6 +1143,7 @@
         }
         .content {
           padding: 16px;
+          padding-bottom: calc(16px + env(safe-area-inset-bottom) + 24px);
         }
       }
       @media (max-width: 480px) {
@@ -1865,12 +1867,38 @@
     <!-- TOASTS -->
     <div class="toast-container" id="toastContainer"></div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
     <script>
       const API = "https://followupsystem.runasp.net/api";
       const params = new URLSearchParams(location.search);
       const CASE_ID = params.get("id");
       let caseData = null;
       let medCount = 0;
+      let hubConnection = null;
+
+      // ── LIVE NOTIFICATIONS (SignalR) ──
+      function connectNotificationHub() {
+        const token = localStorage.getItem("token");
+        if (!token || typeof signalR === "undefined") return;
+
+        const hubUrl = API.replace(/\/api$/, "") + "/hubs/notifications";
+        hubConnection = new signalR.HubConnectionBuilder()
+          .withUrl(hubUrl, { accessTokenFactory: () => localStorage.getItem("token") })
+          .withAutomaticReconnect()
+          .build();
+
+        hubConnection.on("ReceiveNotification", (n) => {
+          showToast(n.title || "New notification", "success");
+          // Refresh this case's data if the live alert is about the case being viewed
+          if (n.type === "Alert" && CASE_ID) loadCase();
+        });
+
+        // withAutomaticReconnect() gives up after a few tries; if that happens,
+        // retry from scratch after a short delay instead of going silent.
+        hubConnection.onclose(() => { setTimeout(connectNotificationHub, 5000); });
+
+        hubConnection.start().catch(() => { setTimeout(connectNotificationHub, 5000); });
+      }
 
       // ── INIT ──
       window.addEventListener("DOMContentLoaded", () => {
@@ -1892,6 +1920,7 @@
         initTheme();
         loadUserAvatar();
         loadCase();
+        connectNotificationHub();
       });
 
       // ── AUTH ──

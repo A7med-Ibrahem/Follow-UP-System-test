@@ -162,6 +162,27 @@ namespace smartFollowup.API
                         IssuerSigningKey = new SymmetricSecurityKey(
                             Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
                     };
+
+                    // SignalR can't send a normal Authorization header on WebSocket/SSE
+                    // connections, so the client (accessTokenFactory) sends the JWT as an
+                    // "access_token" query string parameter instead. Without this, the hub
+                    // connection gets a 401 right after negotiate succeeds.
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+                            var path = context.HttpContext.Request.Path;
+
+                            if (!string.IsNullOrEmpty(accessToken) &&
+                                path.StartsWithSegments("/hubs"))
+                            {
+                                context.Token = accessToken;
+                            }
+
+                            return Task.CompletedTask;
+                        }
+                    };
                 });
 
             builder.Services.AddControllers();
@@ -195,11 +216,10 @@ namespace smartFollowup.API
 
             var app = builder.Build();
 
-            if (app.Environment.IsDevelopment())
-            {
+            
                 app.UseSwagger();
                 app.UseSwaggerUI();
-            }
+            
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

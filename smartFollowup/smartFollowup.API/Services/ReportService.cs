@@ -1,4 +1,5 @@
-﻿﻿using Microsoft.EntityFrameworkCore;
+﻿﻿using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using SmartFollowUp.API.Data;
 using SmartFollowUp.API.DTOs;
 using SmartFollowUp.API.Enums;
@@ -10,17 +11,32 @@ namespace SmartFollowUp.API.Services
     {
         private readonly AppDbContext _context;
         private readonly NotificationService _notificationService;
+        private readonly IBackgroundJobClient _backgroundJobClient;
 
-        public ReportService(AppDbContext context, NotificationService notificationService)
+        public ReportService(AppDbContext context, NotificationService notificationService, IBackgroundJobClient backgroundJobClient)
         {
             _context = context;
             _notificationService = notificationService;
+            _backgroundJobClient = backgroundJobClient;
+        }
+
+        // Builds the same "Swelling, Bleeding, notes" summary text used in the escalation email,
+        // so the immediate critical email and the 1-hour escalation email look consistent.
+        private static string BuildSymptomsText(bool swelling, bool bleeding, string? notes)
+        {
+            var symptoms = new List<string>();
+            if (swelling) symptoms.Add("Swelling");
+            if (bleeding) symptoms.Add("Bleeding");
+            if (!string.IsNullOrWhiteSpace(notes)) symptoms.Add(notes!);
+            return string.Join(", ", symptoms);
         }
 
         // Submit Daily Report
         public async Task<ReportResponseDto?> CreateReportAsync(CreateReportRequestDto request, long patientId)
         {
             var existingCase = await _context.Cases
+                .Include(c => c.Doctor)
+                .Include(c => c.Patient)
                 .FirstOrDefaultAsync(c => c.Id == request.CaseId && c.PatientId == patientId);
 
             if (existingCase == null) return null;
@@ -83,7 +99,7 @@ namespace SmartFollowUp.API.Services
                 $"Your daily report has been received. Risk Level: {riskLevel}"
             );
 
-            // لو Critical — بعت Notification للدكتور
+            // لو Critical — بعت Notification للدكتور + إيميل فوري بتفاصيل الحالة
             if (riskLevel == RiskLevel.Critical)
             {
                 await _notificationService.SendNotificationAsync(
@@ -92,6 +108,19 @@ namespace SmartFollowUp.API.Services
                     "🚨 Critical Patient Alert",
                     "Patient report shows critical condition. Immediate attention required!"
                 );
+
+                _backgroundJobClient.Enqueue<EmailService>(x => x.SendCriticalAlertEmailAsync(
+                    existingCase.Doctor.Email,
+                    existingCase.Doctor.Name,
+                    existingCase.Patient.Name,
+                    existingCase.Id,
+                    (int)riskScore,
+                    (double)(request.Temperature),
+                    request.PainLevel,
+                    BuildSymptomsText(request.Swelling, request.Bleeding, request.Notes),
+                    existingCase.OperationType ?? "N/A",
+                    report.SubmittedAt
+                ));
             }
 
             return new ReportResponseDto
@@ -113,7 +142,8 @@ namespace SmartFollowUp.API.Services
         public async Task<ReportResponseDto?> UpdateReportAsync(long reportId, UpdateReportRequestDto request, long requestingUserId)
         {
             var report = await _context.DailyReports
-                .Include(r => r.Case)
+                .Include(r => r.Case).ThenInclude(c => c.Doctor)
+                .Include(r => r.Case).ThenInclude(c => c.Patient)
                 .Include(r => r.AiAnalysis)
                 .FirstOrDefaultAsync(r => r.Id == reportId &&
                     (r.PatientId == requestingUserId || r.Case.DoctorId == requestingUserId));
@@ -184,6 +214,19 @@ namespace SmartFollowUp.API.Services
                         "🚨 Critical Patient Alert",
                         "An updated patient report shows a critical condition. Immediate attention required!"
                     );
+
+                    _backgroundJobClient.Enqueue<EmailService>(x => x.SendCriticalAlertEmailAsync(
+                        report.Case.Doctor.Email,
+                        report.Case.Doctor.Name,
+                        report.Case.Patient.Name,
+                        report.CaseId,
+                        (int)riskScore,
+                        (double)(report.Temperature ?? 0),
+                        report.PainLevel ?? 0,
+                        BuildSymptomsText(report.Swelling, report.Bleeding, report.Notes),
+                        report.Case.OperationType ?? "N/A",
+                        report.SubmittedAt
+                    ));
                 }
             }
 
@@ -208,6 +251,8 @@ namespace SmartFollowUp.API.Services
         public async Task<PaginatedResponseDto<ReportResponseDto>?> GetCaseReportsAsync(long caseId, PaginationRequestDto pagination, long requestingUserId)
         {
             var existingCase = await _context.Cases
+                .Include(c => c.Doctor)
+                .Include(c => c.Patient)
                 .FirstOrDefaultAsync(c => c.Id == caseId &&
                     (c.DoctorId == requestingUserId || c.PatientId == requestingUserId));
 
@@ -274,6 +319,19 @@ namespace SmartFollowUp.API.Services
                                 "🚨 Critical Patient Alert",
                                 "A previously unanalyzed report shows a critical condition. Immediate attention required!"
                             );
+
+                            _backgroundJobClient.Enqueue<EmailService>(x => x.SendCriticalAlertEmailAsync(
+                                existingCase.Doctor.Email,
+                                existingCase.Doctor.Name,
+                                existingCase.Patient.Name,
+                                r.CaseId,
+                                (int)score,
+                                (double)(r.Temperature ?? 0),
+                                r.PainLevel ?? 0,
+                                BuildSymptomsText(r.Swelling, r.Bleeding, r.Notes),
+                                existingCase.OperationType ?? "N/A",
+                                r.SubmittedAt
+                            ));
                         }
                     }
 

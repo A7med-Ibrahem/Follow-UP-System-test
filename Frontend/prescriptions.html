@@ -2,7 +2,7 @@
 <html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>SmartFollow Up | Prescriptions</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -23,7 +23,7 @@
   --shadow:0 4px 6px -1px rgba(0,0,0,0.4);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Inter',sans-serif;background:var(--bg-main);color:var(--text-main);display:flex;height:100vh;overflow:hidden;transition:background-color var(--transition),color var(--transition);}
+body{font-family:'Inter',sans-serif;background:var(--bg-main);color:var(--text-main);display:flex;height:100vh;height:100dvh;overflow:hidden;transition:background-color var(--transition),color var(--transition);}
 ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
 
 /* ── SIDEBAR ── */
@@ -179,7 +179,7 @@ header{height:68px;background:var(--bg-card);border-bottom:1px solid var(--borde
   aside{position:fixed;left:-100%;top:0;height:100%;width:250px;padding:24px;transition:left var(--transition);z-index:200;}
   aside.open{left:0;}.logo span,.nav-link span{display:flex;}.nav-link{justify-content:flex-start;}.nav-badge{display:flex;}
   .mobile-menu-btn{display:flex;}.sidebar-overlay.open{display:block;}
-  .content{padding:16px;}.stats-row{grid-template-columns:1fr;}
+  .content{padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom) + 24px);}.stats-row{grid-template-columns:1fr;}
   .rx-grid{grid-template-columns:1fr;}
 }
 @media(max-width:480px){.search-bar{display:none;}.form-row{grid-template-columns:1fr;}.modal-footer{flex-direction:column;}}
@@ -343,6 +343,7 @@ header{height:68px;background:var(--bg-card);border-bottom:1px solid var(--borde
 
 <div class="toast-container" id="toastContainer"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
 <script>
 const API = 'https://followupsystem.runasp.net/api';
 let allPrescriptions = [];
@@ -352,6 +353,30 @@ let selectedCaseId = null;
 let medCount = 0;
 let editingRxId = null;
 let searchTimer = null;
+let hubConnection = null;
+
+// ── LIVE NOTIFICATIONS (SignalR) ──
+function connectNotificationHub() {
+  const token = localStorage.getItem('token');
+  if (!token || typeof signalR === 'undefined') return;
+
+  const hubUrl = API.replace(/\/api$/, '') + '/hubs/notifications';
+  hubConnection = new signalR.HubConnectionBuilder()
+    .withUrl(hubUrl, { accessTokenFactory: () => localStorage.getItem('token') })
+    .withAutomaticReconnect()
+    .build();
+
+  hubConnection.on('ReceiveNotification', (n) => {
+    showToast(n.title || 'New notification', 'success');
+    if (n.type === 'Alert') loadAlertCount();
+  });
+
+  // withAutomaticReconnect() gives up after a few tries; if that happens,
+  // retry from scratch after a short delay instead of going silent.
+  hubConnection.onclose(() => { setTimeout(connectNotificationHub, 5000); });
+
+  hubConnection.start().catch(() => { setTimeout(connectNotificationHub, 5000); });
+}
 
 // ── INIT ──
 window.addEventListener('DOMContentLoaded', () => {
@@ -363,6 +388,7 @@ window.addEventListener('DOMContentLoaded', () => {
   loadUserAvatar();
   loadAlertCount();
   loadAllPrescriptions();
+  connectNotificationHub();
 });
 
 // ── AUTH ──

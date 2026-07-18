@@ -109,9 +109,33 @@ namespace SmartFollowUp.API.Services
         }
 
         // Get Audit Logs
-        public async Task<List<AuditLogResponseDto>> GetAuditLogsAsync(int page = 1, int pageSize = 20)
+        public async Task<List<AuditLogResponseDto>> GetAuditLogsAsync(
+            int page = 1,
+            int pageSize = 20,
+            string? userName = null,
+            string? entityName = null,
+            string? action = null,
+            DateTime? fromDate = null,
+            DateTime? toDate = null)
         {
-            return await _context.AuditLogs
+            var query = _context.AuditLogs.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(userName))
+                query = query.Where(a => a.UserName != null && a.UserName.Contains(userName));
+
+            if (!string.IsNullOrWhiteSpace(entityName))
+                query = query.Where(a => a.EntityName == entityName);
+
+            if (!string.IsNullOrWhiteSpace(action))
+                query = query.Where(a => a.Action == action);
+
+            if (fromDate.HasValue)
+                query = query.Where(a => a.CreatedAt >= fromDate.Value);
+
+            if (toDate.HasValue)
+                query = query.Where(a => a.CreatedAt <= toDate.Value.AddDays(1).AddTicks(-1));
+
+            return await query
                 .OrderByDescending(a => a.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -126,6 +150,16 @@ namespace SmartFollowUp.API.Services
                     NewValues = a.NewValues,
                     CreatedAt = a.CreatedAt
                 })
+                .ToListAsync();
+        }
+
+        // Distinct entity names, used to populate the Audit Log filter dropdown
+        public async Task<List<string>> GetAuditEntityNamesAsync()
+        {
+            return await _context.AuditLogs
+                .Select(a => a.EntityName)
+                .Distinct()
+                .OrderBy(n => n)
                 .ToListAsync();
         }
 
