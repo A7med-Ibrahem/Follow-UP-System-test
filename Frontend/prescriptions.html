@@ -684,7 +684,7 @@ async function saveRx() {
       loadAllPrescriptions();
     } else {
       const d = await res?.json().catch(()=>({}));
-      showRxError(d.message||d.title||'Failed to save prescription.');
+      showRxError(d.message || (d.errors ? Object.values(d.errors).flat().join(' ') : null) || d.title || 'Failed to save prescription.');
     }
   } catch { showRxError('Network error. Please try again.'); }
   finally {

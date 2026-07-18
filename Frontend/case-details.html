@@ -2301,11 +2301,12 @@
           } else {
             const d = await res?.json().catch(() => ({}));
             const errorMsg =
-              d.message ||
-              d.title ||
               (d.errors
                 ? Object.values(d.errors).flat().join(", ")
-                : "Failed to save note.");
+                : null) ||
+              d.message ||
+              d.title ||
+              "Failed to save note.";
             showToast(errorMsg, "error");
           }
         } catch {
@@ -2398,11 +2399,12 @@
           } else {
             const d = await res?.json().catch(() => ({}));
             const errorMsg =
-              d.message ||
-              d.title ||
               (d.errors
                 ? Object.values(d.errors).flat().join(", ")
-                : "Failed to save prescription.");
+                : null) ||
+              d.message ||
+              d.title ||
+              "Failed to save prescription.";
             showToast(errorMsg, "error");
           }
         } catch {
@@ -2426,11 +2428,12 @@
           } else {
             const d = await res?.json().catch(() => ({}));
             const errorMsg =
-              d.message ||
-              d.title ||
               (d.errors
                 ? Object.values(d.errors).flat().join(", ")
-                : "Failed to handle alert.");
+                : null) ||
+              d.message ||
+              d.title ||
+              "Failed to handle alert.";
             showToast(errorMsg, "error");
             btn.disabled = false;
             btn.textContent = "Handle";

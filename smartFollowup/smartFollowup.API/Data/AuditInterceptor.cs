@@ -9,6 +9,19 @@ namespace SmartFollowUp.API.Data
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
+        // Fields that must never be written to the audit log, even as "changed",
+        // because their VALUE is a secret (session token, password hash, OTP...).
+        // Logging that a field changed is fine; logging the secret itself is not.
+        private static readonly HashSet<string> SensitiveProperties = new()
+        {
+            "PasswordHash",
+            "RefreshToken",
+            "RefreshTokenExpiry",
+            "ActivationToken",
+            "OtpCode",
+            "OtpExpiry"
+        };
+
         public AuditInterceptor(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
@@ -66,12 +79,20 @@ namespace SmartFollowUp.API.Data
 
                 if (entry.State == EntityState.Modified)
                 {
-                    var oldProps = entry.Properties
-                        .Where(p => p.IsModified)
+                    var modifiedProps = entry.Properties.Where(p => p.IsModified).ToList();
+
+                    // If every property that changed is sensitive (e.g. only RefreshToken
+                    // updated on a plain login), there's nothing meaningful to audit —
+                    // skip this entry instead of logging an empty, noisy "UPDATE".
+                    if (modifiedProps.Count > 0 && modifiedProps.All(p => SensitiveProperties.Contains(p.Metadata.Name)))
+                        continue;
+
+                    var oldProps = modifiedProps
+                        .Where(p => !SensitiveProperties.Contains(p.Metadata.Name))
                         .ToDictionary(p => p.Metadata.Name, p => p.OriginalValue?.ToString());
 
-                    var newProps = entry.Properties
-                        .Where(p => p.IsModified)
+                    var newProps = modifiedProps
+                        .Where(p => !SensitiveProperties.Contains(p.Metadata.Name))
                         .ToDictionary(p => p.Metadata.Name, p => p.CurrentValue?.ToString());
 
                     oldValues = System.Text.Json.JsonSerializer.Serialize(oldProps);

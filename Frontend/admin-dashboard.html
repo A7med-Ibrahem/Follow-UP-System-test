@@ -570,7 +570,7 @@ async function approveRequest(id, btn) {
       renderRequests(document.getElementById('mainContent'), reqFilter, reqCurrentPage);
     } else {
       const d = await res?.json().catch(()=>({}));
-      const errorMsg = d.message || d.title || (d.errors ? Object.values(d.errors).flat().join(', ') : 'Failed to approve.');
+      const errorMsg = (d.errors ? Object.values(d.errors).flat().join(', ') : null) || d.message || d.title || 'Failed to approve.';
       showToast(errorMsg,'error');
       btn.disabled=false; btn.innerHTML='Approve';
     }
@@ -592,7 +592,7 @@ async function confirmReject() {
       renderRequests(document.getElementById('mainContent'), reqFilter, reqCurrentPage);
     } else {
       const d = await res?.json().catch(()=>({}));
-      const errorMsg = d.message || d.title || (d.errors ? Object.values(d.errors).flat().join(', ') : 'Failed to reject.');
+      const errorMsg = (d.errors ? Object.values(d.errors).flat().join(', ') : null) || d.message || d.title || 'Failed to reject.';
       showToast(errorMsg,'error');
     }
   } catch { showToast('Network error.','error'); }
@@ -694,7 +694,7 @@ async function toggleDoctor(userId, isActive, btn) {
       loadDoctors(docCurrentPage);
     } else {
       const d = await res?.json().catch(()=>({}));
-      const errorMsg = d.message || d.title || (d.errors ? Object.values(d.errors).flat().join(', ') : 'Failed to update status.');
+      const errorMsg = (d.errors ? Object.values(d.errors).flat().join(', ') : null) || d.message || d.title || 'Failed to update status.';
       showToast(errorMsg,'error');
       btn.disabled=false; btn.innerHTML=isActive?'Deactivate':'Activate';
     }

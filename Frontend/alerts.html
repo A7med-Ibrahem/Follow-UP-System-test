@@ -535,7 +535,7 @@ async function handleAlert(id, btn) {
       loadAlerts(currentPage);
     } else {
       const d = await res?.json().catch(() => ({}));
-      const errorMsg = d.message || d.title || (d.errors ? Object.values(d.errors).flat().join(', ') : 'Failed to handle alert.');
+      const errorMsg = (d.errors ? Object.values(d.errors).flat().join(', ') : null) || d.message || d.title || 'Failed to handle alert.';
       showToast(errorMsg, 'error');
       btn.disabled = false;
       btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:middle"><polyline points="20 6 9 17 4 12"/></svg> Handle`;

@@ -885,7 +885,7 @@ async function submitReport() {
     if (!res) throw new Error();
     if (!res.ok) {
       const d = await res.json().catch(()=>({}));
-      const errorMsg = d.message || d.title || (d.errors ? Object.values(d.errors).flat().join(', ') : 'Failed to submit report.');
+      const errorMsg = (d.errors ? Object.values(d.errors).flat().join(', ') : null) || d.message || d.title || 'Failed to submit report.';
       showAlertBox('reportError','reportErrorMsg', errorMsg);
       btnLoad(btn, false, 'Submit Report');
       return;
@@ -1073,7 +1073,7 @@ async function confirmMed(medId, btn, adherenceId) {
     if (res&&res.ok) { showToast('Medication marked as taken!','success'); renderMedications(document.getElementById('mainContent')); }
     else {
       const d = await res?.json().catch(()=>({}));
-      const errorMsg = d.message || d.title || (d.errors ? Object.values(d.errors).flat().join(', ') : 'Failed to confirm.');
+      const errorMsg = (d.errors ? Object.values(d.errors).flat().join(', ') : null) || d.message || d.title || 'Failed to confirm.';
       showToast(errorMsg,'error');
       btn.disabled=false; btn.textContent='Confirm';
     }
@@ -1170,7 +1170,7 @@ async function saveProfile() {
       renderProfilePage(document.getElementById('mainContent'));
     } else {
       const d = await res?.json().catch(()=>({}));
-      const errorMsg = d.message || d.title || (d.errors ? Object.values(d.errors).flat().join(', ') : 'Failed to update profile.');
+      const errorMsg = (d.errors ? Object.values(d.errors).flat().join(', ') : null) || d.message || d.title || 'Failed to update profile.';
       showAlertBox('profileError','profileErrorMsg', errorMsg);
     }
   } catch { showAlertBox('profileError','profileErrorMsg','Network error.'); }
@@ -1217,7 +1217,7 @@ async function changePassword() {
       showToast('Password updated successfully!', 'success');
     } else {
       const d = await res?.json().catch(() => ({}));
-      const errorMsg = d.message || d.title || (d.errors ? Object.values(d.errors).flat().join(', ') : 'Incorrect current password.');
+      const errorMsg = (d.errors ? Object.values(d.errors).flat().join(', ') : null) || d.message || d.title || 'Incorrect current password.';
       showCpError(errorMsg);
     }
   } catch { showCpError('Network error. Please try again.'); }

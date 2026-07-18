@@ -438,7 +438,11 @@ async function doLogin() {
       body: JSON.stringify({ email, password: pass })
     });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) { showAlert('loginAlert','loginAlertMsg', data.message || data.title || 'Invalid email or password.'); btnLoading('loginBtn',false,'Sign In'); return; }
+    if (!res.ok) {
+      const errorMsg = data.message || (data.errors ? Object.values(data.errors).flat().join(' ') : null) || data.title || 'Invalid email or password.';
+      showAlert('loginAlert','loginAlertMsg', errorMsg);
+      btnLoading('loginBtn',false,'Sign In'); return;
+    }
     const r = data.role || parseRole(data.token || data.accessToken);
     localStorage.setItem('token', data.token || data.accessToken || '');
     if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
@@ -487,7 +491,8 @@ async function sendOtp() {
     });
     if (!res.ok) {
       const d = await res.json().catch(()=>({}));
-      showAlert('f1Alert','f1AlertMsg', d.message || (res.status===429 ? 'Too many attempts. Please wait a few minutes.' : 'Something went wrong. Please try again.'));
+      const errorMsg = d.message || (d.errors ? Object.values(d.errors).flat().join(' ') : null) || (res.status===429 ? 'Too many attempts. Please wait a few minutes.' : 'Something went wrong. Please try again.');
+      showAlert('f1Alert','f1AlertMsg', errorMsg);
       btnLoading('sendOtpBtn',false,'Send Code');
       return;
     }
@@ -620,7 +625,8 @@ async function submitRequest() {
     });
     if (!res.ok) {
       const d = await res.json().catch(()=>({}));
-      showAlert('reqAlert','reqAlertMsg', d.message||d.title||'Failed to submit.');
+      const errorMsg = d.message || (d.errors ? Object.values(d.errors).flat().join(' ') : null) || d.title || 'Failed to submit.';
+      showAlert('reqAlert','reqAlertMsg', errorMsg);
     } else {
       showSuccessMsg('reqSuccess', null, null);
       ['rName','rEmail','rSpec','rLicense'].forEach(id => document.getElementById(id).value='');
