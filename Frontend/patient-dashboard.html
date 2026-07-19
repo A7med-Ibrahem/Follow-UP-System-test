@@ -261,6 +261,63 @@ header{height:68px;background:var(--bg-card);border-bottom:1px solid var(--borde
 <meta name="apple-mobile-web-app-title" content="SmartFollow"/>
 </head>
 <body>
+<!-- PWA INSTALL BANNER -->
+<div id="pwaInstallBanner" style="display:none;position:fixed;bottom:16px;left:16px;right:16px;max-width:420px;margin:0 auto;background:#111827;color:#fff;border-radius:14px;padding:14px 16px;box-shadow:0 10px 30px rgba(0,0,0,0.3);z-index:9999;align-items:center;gap:12px;font-family:'Inter',sans-serif;">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+  <div style="flex:1;min-width:0">
+    <div style="font-weight:700;font-size:13px" id="pwaInstallTitle">Install SmartFollow</div>
+    <div style="font-size:11px;opacity:.75" id="pwaInstallText">Add it to your home screen for quick access.</div>
+  </div>
+  <button id="pwaInstallBtn" style="display:none;background:#fff;color:#111827;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">Install</button>
+  <button id="pwaInstallDismiss" style="background:transparent;border:none;color:#fff;opacity:.6;cursor:pointer;font-size:20px;line-height:1;padding:4px;flex-shrink:0">&times;</button>
+</div>
+<script>
+(function(){
+  if (localStorage.getItem('pwaInstallDismissed') === '1') return;
+  var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if (isStandalone) return;
+
+  var banner = document.getElementById('pwaInstallBanner');
+  var btn = document.getElementById('pwaInstallBtn');
+  var dismissBtn = document.getElementById('pwaInstallDismiss');
+  var titleEl = document.getElementById('pwaInstallTitle');
+  var textEl = document.getElementById('pwaInstallText');
+  var deferredPrompt = null;
+  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    deferredPrompt = e;
+    btn.style.display = '';
+    banner.style.display = 'flex';
+  });
+
+  if (isIOS) {
+    textEl.textContent = 'Tap Share, then "Add to Home Screen".';
+    banner.style.display = 'flex';
+  }
+
+  btn.addEventListener('click', function(){
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.finally(function(){
+      deferredPrompt = null;
+      banner.style.display = 'none';
+    });
+  });
+
+  dismissBtn.addEventListener('click', function(){
+    banner.style.display = 'none';
+    localStorage.setItem('pwaInstallDismissed', '1');
+  });
+
+  window.addEventListener('appinstalled', function(){
+    banner.style.display = 'none';
+    localStorage.setItem('pwaInstallDismissed', '1');
+  });
+})();
+</script>
+
 
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
